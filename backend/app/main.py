@@ -4,7 +4,10 @@ from fastapi import FastAPI, Request, Depends
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from app.config import get_settings, Settings
+import iso8601
+import datetime
+# from app.config import get_settings, Settings #___DOCKER___ "proxy": "http://host.docker.internal:8080",
+from config import get_settings, Settings
 
 
 app = FastAPI()
@@ -23,7 +26,8 @@ app.add_middleware(
 )
 
 
-file = './app/tekore.cfg'
+# file = './app/tekore.cfg' #___DOCKER___
+file = 'tekore.cfg'
 conf = tk.config_from_file(file)
 cred = tk.Credentials(*conf)
 spotify = tk.Spotify()
@@ -39,11 +43,6 @@ def pong(settings: Settings = Depends(get_settings)):
         "environment": settings.environment,
         "testing": settings.testing
     }
-
-
-@ app.get("/react")
-def hello_react():
-    return {"isLoggedIn": False, "username": "Evan"}
 
 
 @ app.get("/home")
@@ -64,22 +63,42 @@ def read_root(request: Request):
 
     try:
         with spotify.token_as(token):
+
             display_name = spotify.current_user().display_name
+
             currently_playing = spotify.playback_currently_playing(
                 tracks_only=True)
+
+            play_history_paging = spotify.playback_recently_played(limit=1)
+
             if currently_playing:
-                current_song = currently_playing.item.name
-                current_artist = currently_playing.item.artists[0].name
+                if currently_playing.is_playing:
+                    current_song = currently_playing.item.name
+                    current_artist = currently_playing.item.artists[0].name
+                    last_song, last_artist, elapsed = None, None, None
             else:
                 current_song, current_artist = None, None
+                last_song = play_history_paging.items[0].track.name
+                last_artist = play_history_paging.items[0].track.artists[0].name
+                last_played_at = play_history_paging.items[0].played_at
+
+                last_played_at_parsed = iso8601.parse_date(str(last_played_at))
+                now = datetime.datetime.fromisoformat(datetime.datetime.now().astimezone().replace(
+                    microsecond=0).isoformat())
+                elapsed = round((now-last_played_at_parsed).seconds / 60)
 
     except tk.HTTPError as err:
         print(str(err))
+        print(err.response)
+        print(err.request)
         return {"error": "Could not fetch info"}
     return {"isLoggedIn": True,
             "display_name": display_name,
             "current_song": current_song,
-            "current_artist": current_artist}
+            "current_artist": current_artist,
+            "last_song": last_song,
+            "last_artist": last_artist,
+            "elapsed": elapsed}
 
 
 @ app.get("/login")
@@ -104,7 +123,7 @@ def login_callback(request: Request, code: str, state: str):
 
     token = auth.request_token(code, state)
 
-    print("token: ", token)
+    # print("token: ", token)
     request.session['user'] = state
     users[state] = token
     return RedirectResponse('http://localhost:3000/')
