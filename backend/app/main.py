@@ -4,7 +4,9 @@ from fastapi import FastAPI, Request, Depends
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from app.config import get_settings, Settings
+# from app.config import get_settings, Settings #___DOCKER___ "proxy": "http://host.docker.internal:8080",
+from config import get_settings, Settings
+from spotify import get_display_name, get_currently_playing, get_last_played
 
 
 app = FastAPI()
@@ -23,7 +25,8 @@ app.add_middleware(
 )
 
 
-file = './app/tekore.cfg'
+# file = './app/tekore.cfg' #___DOCKER___
+file = 'tekore.cfg'
 conf = tk.config_from_file(file)
 cred = tk.Credentials(*conf)
 spotify = tk.Spotify()
@@ -39,11 +42,6 @@ def pong(settings: Settings = Depends(get_settings)):
         "environment": settings.environment,
         "testing": settings.testing
     }
-
-
-@ app.get("/react")
-def hello_react():
-    return {"isLoggedIn": False, "username": "Evan"}
 
 
 @ app.get("/home")
@@ -64,22 +62,27 @@ def read_root(request: Request):
 
     try:
         with spotify.token_as(token):
-            display_name = spotify.current_user().display_name
-            currently_playing = spotify.playback_currently_playing(
-                tracks_only=True)
-            if currently_playing:
-                current_song = currently_playing.item.name
-                current_artist = currently_playing.item.artists[0].name
-            else:
-                current_song, current_artist = None, None
+
+            display_name = get_display_name(spotify)
+
+            current = get_currently_playing(spotify)
+
+            last = get_last_played(spotify)
 
     except tk.HTTPError as err:
         print(str(err))
+        # print(err.response)
+        # print(err.request)
         return {"error": "Could not fetch info"}
     return {"isLoggedIn": True,
             "display_name": display_name,
-            "current_song": current_song,
-            "current_artist": current_artist}
+            "current_song": current['current_song'],
+            "current_artist": current['current_artist'],
+            "last_song": last['last_song'],
+            "last_artist": last['last_artist'],
+            "elapsed_time": last['elapsed_time'],
+            "time_units": last['time_units'],
+            }
 
 
 @ app.get("/login")
@@ -104,7 +107,7 @@ def login_callback(request: Request, code: str, state: str):
 
     token = auth.request_token(code, state)
 
-    print("token: ", token)
+    # print("token: ", token)
     request.session['user'] = state
     users[state] = token
     return RedirectResponse('http://localhost:3000/')

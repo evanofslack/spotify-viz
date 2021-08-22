@@ -10,8 +10,8 @@ ENV PYTHONUNBUFFERED 1
 
 # install system dependencies
 RUN apt-get update \
-    && apt-get -y install netcat gcc \
     && apt-get clean
+# && apt-get -y install netcat gcc \
 
 # install python dependencies
 RUN pip install --upgrade pip

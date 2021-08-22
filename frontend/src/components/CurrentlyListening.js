@@ -11,11 +11,11 @@ import {
 // Spotracks
 
 function CurrentlyListening(props) {
-    const subheader = useColorModeValue("grey.900", "gray.100");
+    const subheader = useColorModeValue("gray.900", "gray.100");
     return (
-        <Box mt="6">
+        <Box mt="6" width="100%">
             <Stat color={subheader}>
-                <StatLabel>Currently Listening To</StatLabel>
+                <StatLabel>Currently listening to</StatLabel>
                 <StatNumber>{props.song}</StatNumber>
                 <StatHelpText>by {props.artist}</StatHelpText>
             </Stat>

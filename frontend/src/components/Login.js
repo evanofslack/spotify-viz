@@ -1,20 +1,16 @@
 import React from "react";
-import { ChakraProvider, Flex } from "@chakra-ui/react";
-
-import { ColorModeSwitcher } from "./ColorModeSwitcher";
+import { Flex } from "@chakra-ui/react";
+import NavBar from "./NavBar";
 import LoginButton from "./LoginButton";
 import LoginBlurb from "./LoginBlurb";
-import theme from ".././themes/theme";
 
 function Home() {
     return (
-        <ChakraProvider theme={theme}>
-            <Flex direction="column" justify="center" align="center">
-                <ColorModeSwitcher justifySelf="flex-end" />
-                <LoginBlurb />
-                <LoginButton />
-            </Flex>
-        </ChakraProvider>
+        <Flex direction="column" justify="center" align="center">
+            <NavBar />
+            <LoginBlurb />
+            <LoginButton />
+        </Flex>
     );
 }
 

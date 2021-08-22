@@ -16,5 +16,5 @@ class Settings(BaseSettings):
 
 @ lru_cache()
 def get_settings() -> BaseSettings:
-    log.info("Loading config settings from the environment...")
+    log.info("Hiya, loading config settings from the environment...")
     return Settings()

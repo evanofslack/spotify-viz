@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { ChakraProvider, Flex } from "@chakra-ui/react";
-import { ColorModeSwitcher } from "./ColorModeSwitcher";
+import { Flex, Box } from "@chakra-ui/react";
+import NavBar from "./NavBar";
 import HomeBlurb from "./HomeBlurb";
-import CurrentlyListening from "./CurrentlyListing";
-import theme from ".././themes/theme";
+import CurrentlyListening from "./CurrentlyListening";
+import LastListening from "./LastListening";
 
 function Home() {
     const [data, setData] = useState({
@@ -19,21 +19,41 @@ function Home() {
                     display_name: data.display_name,
                     current_song: data.current_song,
                     current_artist: data.current_artist,
+                    last_song: data.last_song,
+                    last_artist: data.last_artist,
+                    elapsed_time: data.elapsed_time,
+                    time_units: data.time_units,
                 });
             })
         );
     }, []);
 
-    const { display_name, current_song, current_artist } = data;
+    const {
+        display_name,
+        current_song,
+        current_artist,
+        last_song,
+        last_artist,
+        elapsed_time,
+        time_units,
+    } = data;
 
     return (
-        <ChakraProvider theme={theme}>
-            <Flex align="center" justify="center" direction="column">
-                <ColorModeSwitcher justifySelf="flex-end" />
+        <Flex align="center" justify="center" direction="column">
+            <NavBar />
+            <Box>
                 <HomeBlurb name={display_name} />
                 {current_song && <CurrentlyListening song={current_song} artist={current_artist} />}
-            </Flex>
-        </ChakraProvider>
+                {!current_song && (
+                    <LastListening
+                        song={last_song}
+                        artist={last_artist}
+                        elapsedTime={elapsed_time}
+                        timeUnits={time_units}
+                    />
+                )}
+            </Box>
+        </Flex>
     );
 }
 
