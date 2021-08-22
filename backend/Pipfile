@@ -11,6 +11,7 @@ requests = "*"
 typing = "*"
 itsdangerous = "*"
 flask-cors = "*"
+iso8601 = "*"
 
 [dev-packages]
 autopep8 = "*"
