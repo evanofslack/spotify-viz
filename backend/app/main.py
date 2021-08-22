@@ -4,10 +4,9 @@ from fastapi import FastAPI, Request, Depends
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-import iso8601
-import datetime
 # from app.config import get_settings, Settings #___DOCKER___ "proxy": "http://host.docker.internal:8080",
 from config import get_settings, Settings
+from spotify import get_display_name, get_currently_playing, get_last_played
 
 
 app = FastAPI()
@@ -64,41 +63,26 @@ def read_root(request: Request):
     try:
         with spotify.token_as(token):
 
-            display_name = spotify.current_user().display_name
+            display_name = get_display_name(spotify)
 
-            currently_playing = spotify.playback_currently_playing(
-                tracks_only=True)
+            current = get_currently_playing(spotify)
 
-            play_history_paging = spotify.playback_recently_played(limit=1)
-
-            if currently_playing:
-                if currently_playing.is_playing:
-                    current_song = currently_playing.item.name
-                    current_artist = currently_playing.item.artists[0].name
-                    last_song, last_artist, elapsed = None, None, None
-            else:
-                current_song, current_artist = None, None
-                last_song = play_history_paging.items[0].track.name
-                last_artist = play_history_paging.items[0].track.artists[0].name
-                last_played_at = play_history_paging.items[0].played_at
-
-                last_played_at_parsed = iso8601.parse_date(str(last_played_at))
-                now = datetime.datetime.fromisoformat(datetime.datetime.now().astimezone().replace(
-                    microsecond=0).isoformat())
-                elapsed = round((now-last_played_at_parsed).seconds / 60)
+            last = get_last_played(spotify)
 
     except tk.HTTPError as err:
         print(str(err))
-        print(err.response)
-        print(err.request)
+        # print(err.response)
+        # print(err.request)
         return {"error": "Could not fetch info"}
     return {"isLoggedIn": True,
             "display_name": display_name,
-            "current_song": current_song,
-            "current_artist": current_artist,
-            "last_song": last_song,
-            "last_artist": last_artist,
-            "elapsed": elapsed}
+            "current_song": current['current_song'],
+            "current_artist": current['current_artist'],
+            "last_song": last['last_song'],
+            "last_artist": last['last_artist'],
+            "elapsed_time": last['elapsed_time'],
+            "time_units": last['time_units'],
+            }
 
 
 @ app.get("/login")

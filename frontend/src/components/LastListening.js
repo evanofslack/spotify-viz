@@ -15,7 +15,9 @@ function LastListening(props) {
     return (
         <Box mt="6" width="100%">
             <Stat color={subheader}>
-                <StatLabel>{props.elapsed} minutes ago </StatLabel>
+                <StatLabel>
+                    {props.elapsedTime} {props.timeUnits} ago{" "}
+                </StatLabel>
                 <StatNumber>{props.song}</StatNumber>
                 <StatHelpText>by {props.artist}</StatHelpText>
             </Stat>

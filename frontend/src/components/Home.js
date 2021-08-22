@@ -21,13 +21,22 @@ function Home() {
                     current_artist: data.current_artist,
                     last_song: data.last_song,
                     last_artist: data.last_artist,
-                    elapsed: data.elapsed,
+                    elapsed_time: data.elapsed_time,
+                    time_units: data.time_units,
                 });
             })
         );
     }, []);
 
-    const { display_name, current_song, current_artist, last_song, last_artist, elapsed } = data;
+    const {
+        display_name,
+        current_song,
+        current_artist,
+        last_song,
+        last_artist,
+        elapsed_time,
+        time_units,
+    } = data;
 
     return (
         <Flex align="center" justify="center" direction="column">
@@ -36,7 +45,12 @@ function Home() {
                 <HomeBlurb name={display_name} />
                 {current_song && <CurrentlyListening song={current_song} artist={current_artist} />}
                 {!current_song && (
-                    <LastListening song={last_song} artist={last_artist} elapsed={elapsed} />
+                    <LastListening
+                        song={last_song}
+                        artist={last_artist}
+                        elapsedTime={elapsed_time}
+                        timeUnits={time_units}
+                    />
                 )}
             </Box>
         </Flex>

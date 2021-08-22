@@ -15,7 +15,7 @@ function CurrentlyListening(props) {
     return (
         <Box mt="6" width="100%">
             <Stat color={subheader}>
-                <StatLabel>Currently Listening To</StatLabel>
+                <StatLabel>Currently listening to</StatLabel>
                 <StatNumber>{props.song}</StatNumber>
                 <StatHelpText>by {props.artist}</StatHelpText>
             </Stat>
