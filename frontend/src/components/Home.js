@@ -13,7 +13,7 @@ function Home() {
     });
 
     useEffect(() => {
-        fetch("/home").then((response) =>
+        fetch("/overview").then((response) =>
             response.json().then((data) => {
                 setData({
                     display_name: data.display_name,

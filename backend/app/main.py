@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 # from app.config import get_settings, Settings #___DOCKER___ "proxy": "http://host.docker.internal:8080",
 from config import get_settings, Settings
-from spotify import get_display_name, get_currently_playing, get_last_played
+from helpers.spotify import get_display_name, get_currently_playing, get_last_played
 
 
 app = FastAPI()
@@ -44,17 +44,26 @@ def pong(settings: Settings = Depends(get_settings)):
     }
 
 
-@ app.get("/home")
-def read_root(request: Request):
+@app.get("/is_logged_in")
+def is_logged_in(request: Request):
     user = request.session.get('user', None)
-
     token = users.get(user, None)
 
-    print('user: ', user)
-    print('token: ', token)
     if user is None or token is None:
         request.session.pop('user', None)
         return {"isLoggedIn": False, "message": "Not logged in"}
+    else:
+        return {"isLoggedIn": True}
+
+
+@app.get("/overview")
+def read_root(request: Request):
+    user = request.session.get('user', None)
+    token = users.get(user, None)
+
+    if user is None or token is None:
+        request.session.pop('user', None)
+        return RedirectResponse(url='/login')
 
     if token.is_expiring:
         token = cred.refresh(token)
@@ -74,8 +83,7 @@ def read_root(request: Request):
         # print(err.response)
         # print(err.request)
         return {"error": "Could not fetch info"}
-    return {"isLoggedIn": True,
-            "display_name": display_name,
+    return {"display_name": display_name,
             "current_song": current['current_song'],
             "current_artist": current['current_artist'],
             "last_song": last['last_song'],
@@ -107,7 +115,6 @@ def login_callback(request: Request, code: str, state: str):
 
     token = auth.request_token(code, state)
 
-    # print("token: ", token)
     request.session['user'] = state
     users[state] = token
     return RedirectResponse('http://localhost:3000/')
@@ -118,7 +125,7 @@ def logout(request: Request):
     uid = request.session.pop('user', None)
     if uid is not None:
         users.pop(uid, None)
-    return RedirectResponse('/home')
+    return RedirectResponse('/login')
 
 
 if __name__ == "__main__":
