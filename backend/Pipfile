@@ -12,6 +12,7 @@ typing = "*"
 itsdangerous = "*"
 flask-cors = "*"
 iso8601 = "*"
+sqlalchemy = "*"
 
 [dev-packages]
 autopep8 = "*"
