@@ -1,4 +1,4 @@
-    # SpotViz
+# SpotViz
 
 Fullstack application for users to visualize their spotify playback
 
