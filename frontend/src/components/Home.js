@@ -41,7 +41,7 @@ function Home() {
     return (
         <Flex align="center" justify="center" direction="column">
             <NavBar />
-            <Box>
+            <Box m="10">
                 <HomeBlurb name={display_name} />
                 {current_song && <CurrentlyListening song={current_song} artist={current_artist} />}
                 {!current_song && (
