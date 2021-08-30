@@ -1,13 +1,24 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
-
-from db.database import Base
+from typing import Optional
+from sqlmodel import Field, SQLModel
 
 
-class User(Base):
-    __tablename__ = "users"
+class UserBase(SQLModel):
+    spotify_id: int
+    token: str
+    session_id: str
 
-    id = Column(Integer, primary_key=True, index=True)
-    state = Column(String, unique=True, index=True)
-    token = Column(String)
-    spotify_id = Column(Integer, unique=True)
+
+class User(UserBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+
+class UserCreate(UserBase):
+    pass
+
+
+class UserRead(UserBase):
+    id: int
+
+
+class UserUpdate(SQLModel):
+    pass

@@ -1,24 +1,21 @@
 import uvicorn
 import tekore as tk
-from fastapi import FastAPI, Request, Depends, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from sqlalchemy.orm import Session
 from typing import List
+from sqlmodel import Session, select
 
-# from app.config import get_settings, Settings #___DOCKER___ "proxy": "http://host.docker.internal:8080",
+from db.models import User, UserCreate, UserRead, UserUpdate
+from db.database import create_db_and_tables, get_session
 from config import get_settings, Settings
 from helpers.spotify import get_display_name, get_currently_playing, get_last_played
-
-from db import crud, models, schemas
-from db.database import SessionLocal, engine
-
-models.Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="yeahyouthought")
+
 
 origins = [
     'http://localhost',
@@ -33,46 +30,69 @@ app.add_middleware(
 )
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-# file = './app/tekore.cfg' #___DOCKER___
-file = 'tekore.cfg'
+file = 'tekore.cfg'  # file = './app/tekore.cfg'
 conf = tk.config_from_file(file)
 cred = tk.Credentials(*conf)
 spotify = tk.Spotify()
 
+# TODO: Move session data into db
 auths = {}  # Ongoing authorisations: state -> UserAuth
 users = {}  # User tokens: state -> token (use state as a user ID)
 
 
-@app.get("/ping")
-def pong(settings: Settings = Depends(get_settings)):
-    return {
-        "ping": "pong!",
-        "environment": settings.environment,
-        "testing": settings.testing
-    }
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
 
 
-@app.post("/users/")
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_id(db, spotify_id=user.spotify_id)
-    if db_user:
-        raise HTTPException(
-            status_code=400, detail="Spotify ID already registered")
-    return crud.create_user(db=db, user=user)
+# TODO: Group routes into seperate router files
+@app.post("/users/", response_model=UserRead)
+def create_user(*, session: Session = Depends(get_session), user: UserCreate):
+    db_user = User.from_orm(user)
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+    return db_user
 
 
-@app.get("/users/")
-def read_users(db: Session = Depends(get_db)):
-    users = crud.get_all_users(db=db)
+@app.get("/users/", response_model=List[User])
+def read_users(*, session: Session = Depends(get_session)):
+    users = session.exec(select(User)).all()
+    if not users:
+        raise HTTPException(status_code=404, detail="No users in database")
     return users
+
+
+@app.get("/users/{spotify_id}", response_model=UserRead)
+def read_user(*, session: Session = Depends(get_session), spotify_id: int):
+    user = session.get(User, spotify_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="user not found")
+    return user
+
+
+@app.patch("/users/{spotify_id}", response_model=UserRead)
+def update_user(*, session: Session = Depends(get_session), spotify_id: int, user: UserUpdate):
+    db_user = session.get(User, spotify_id)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user_data = user.dict(exclude_unset=True)
+    for key, value in user_data.items():
+        setattr(db_user, key, value)
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+    return db_user
+
+
+@app.delete("/users/{spotify_id}")
+def delete_user(*, session: Session = Depends(get_session), spotify_id: int):
+    user = session.get(User, spotify_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    session.delete(user)
+    session.commit()
+    return {"ok": True}
 
 
 @app.get("/is_logged_in")
@@ -163,6 +183,15 @@ def logout(request: Request):
     if uid is not None:
         users.pop(uid, None)
     return RedirectResponse('/login')
+
+
+@app.get("/ping")
+def pong(settings: Settings = Depends(get_settings)):
+    return {
+        "ping": "pong!",
+        "environment": settings.environment,
+        "testing": settings.testing
+    }
 
 
 if __name__ == "__main__":
