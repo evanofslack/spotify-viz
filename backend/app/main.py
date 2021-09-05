@@ -1,10 +1,9 @@
 import uvicorn
-import tekore as tk
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
-from routers import users, auth
+from routers import users, auth, data
 from db.database import create_db_and_tables
 from config import get_settings, Settings
 
@@ -12,6 +11,8 @@ from config import get_settings, Settings
 app = FastAPI()
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(data.router)
+
 app.add_middleware(SessionMiddleware, secret_key="yeahyouthought")
 
 
