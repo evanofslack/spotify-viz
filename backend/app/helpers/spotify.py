@@ -4,6 +4,11 @@ import iso8601
 from typing import Dict
 
 
+def get_spotify_id(spotify: tk.Spotify) -> str:
+    spotify_id = spotify.current_user().id
+    return spotify_id
+
+
 def get_display_name(spotify: tk.Spotify) -> str:
     display_name = spotify.current_user().display_name
     return display_name
