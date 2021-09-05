@@ -2,14 +2,13 @@ from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 import tekore as tk
 
+from cache import cache
 from helpers.spotify import get_display_name, get_currently_playing, get_last_played
 
 router = APIRouter(
     tags=["auth"],
 )
 
-auths = {}  # Ongoing authorisations: state -> UserAuth
-users = {}  # User tokens: state -> token (use state as a user ID)
 
 file = 'tekore.cfg'  # file = './app/tekore.cfg'
 conf = tk.config_from_file(file)
@@ -20,7 +19,7 @@ spotify = tk.Spotify()
 @router.get("/is_logged_in")
 def is_logged_in(request: Request):
     user = request.session.get('user', None)
-    token = users.get(user, None)
+    token = cache.users.get(user, None)
     '''
     token = get_token_from_db(state: Str)
     '''
@@ -35,7 +34,7 @@ def is_logged_in(request: Request):
 @router.get("/overview")
 def read_root(request: Request):
     user = request.session.get('user', None)
-    token = users.get(user, None)
+    token = cache.users.get(user, None)
 
     if user is None or token is None:
         request.session.pop('user', None)
@@ -43,7 +42,7 @@ def read_root(request: Request):
 
     if token.is_expiring:
         token = cred.refresh(token)
-        users[user] = token
+        cache.users[user] = token
 
     try:
         with spotify.token_as(token):
@@ -77,7 +76,7 @@ def login(request: Request):
     scope = tk.scope.user_read_currently_playing + \
         tk.scope.user_read_playback_state + tk.scope.user_read_recently_played
     auth = tk.UserAuth(cred, scope)
-    auths[auth.state] = auth
+    cache.auths[auth.state] = auth
     '''
     update_user_db(auth.state, auth)
     '''
@@ -87,7 +86,7 @@ def login(request: Request):
 @router.get("/callback")
 def login_callback(request: Request, code: str, state: str):
 
-    auth = auths.pop(state, None)
+    auth = cache.auths.pop(state, None)
 
     if auth is None:
         return 'Invalid state!', 400
@@ -95,7 +94,7 @@ def login_callback(request: Request, code: str, state: str):
     token = auth.request_token(code, state)
 
     request.session['user'] = state
-    users[state] = token
+    cache.users[state] = token
     return RedirectResponse('http://localhost:3000/')
 
 
@@ -103,5 +102,5 @@ def login_callback(request: Request, code: str, state: str):
 def logout(request: Request):
     uid = request.session.pop('user', None)
     if uid is not None:
-        users.pop(uid, None)
+        cache.users.pop(uid, None)
     return RedirectResponse('/login')
