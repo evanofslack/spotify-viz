@@ -1,13 +1,11 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
+import tekore as tk
 
-from cache import cache
-from helpers.tekore_setup import spotify, auth
+from helpers.tekore_setup import spotify, cred, scope
 from helpers.spotify import get_spotify_id
-
-from routers.users import create_user
 from db.models import UserCreate
-from db.database import get_session
+from cache import cache
 
 router = APIRouter(
     tags=["auth"],
@@ -31,6 +29,7 @@ def login(request: Request):
     if 'user' in request.session:
         return RedirectResponse(url='/overview')
 
+    auth = tk.UserAuth(cred, scope)
     cache.auths[auth.state] = auth
 
     return {"url": auth.url}

@@ -2,9 +2,9 @@ from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 import tekore as tk
 
-from cache import cache
-from helpers.spotify import get_display_name, get_currently_playing, get_last_played, get_spotify_id
+from helpers.spotify import get_display_name, get_currently_playing, get_last_played
 from helpers.tekore_setup import spotify, cred
+from cache import cache
 
 router = APIRouter(
     tags=["data"],
