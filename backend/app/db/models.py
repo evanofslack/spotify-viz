@@ -3,9 +3,7 @@ from sqlmodel import Field, SQLModel
 
 
 class UserBase(SQLModel):
-    spotify_id: int
-    token: str
-    session_id: str
+    spotify_id: str
 
 
 class User(UserBase, table=True):
