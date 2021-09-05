@@ -12,6 +12,7 @@ app = FastAPI()
 app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(data.router)
+
 app.add_middleware(SessionMiddleware, secret_key="yeahyouthought")
 
 
