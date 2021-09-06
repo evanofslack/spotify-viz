@@ -29,15 +29,15 @@ def read_users(*, session: Session = Depends(get_session)):
 
 
 @router.get("/users/{spotify_id}", response_model=UserRead)
-def read_user(*, session: Session = Depends(get_session), spotify_id: int):
-    user = session.get(User, spotify_id)
+def read_user(*, session: Session = Depends(get_session), spotify_id: str):
+    user = session.exec(select(User).where(User.spotify_id == spotify_id))
     if not user:
         raise HTTPException(status_code=404, detail="user not found")
-    return user
+    return user.one()
 
 
-@router.patch("/users/{spotify_id}", response_model=UserRead)
-def update_user(*, session: Session = Depends(get_session), spotify_id: int, user: UserUpdate):
+@ router.patch("/users/{spotify_id}", response_model=UserRead)
+def update_user(*, session: Session = Depends(get_session), spotify_id: str, user: UserUpdate):
     db_user = session.get(User, spotify_id)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -50,11 +50,13 @@ def update_user(*, session: Session = Depends(get_session), spotify_id: int, use
     return db_user
 
 
-@router.delete("/users/{spotify_id}")
-def delete_user(*, session: Session = Depends(get_session), spotify_id: int):
-    user = session.get(User, spotify_id)
+@ router.delete("/users/{spotify_id}", response_model=UserRead)
+def delete_user(*, session: Session = Depends(get_session), spotify_id: str):
+    user = session.exec(select(User).where(User.spotify_id == spotify_id))
+
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    session.delete(user)
+
+    session.delete(user.one())
     session.commit()
-    return {"ok": True}
+    return {"deleted": user.one()}
