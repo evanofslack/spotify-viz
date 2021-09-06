@@ -4,6 +4,8 @@ import tekore as tk
 
 from helpers.tekore_setup import spotify, cred, scope
 from helpers.spotify import get_spotify_id
+from helpers.crud import create_user, read_user
+
 from db.models import UserCreate
 from cache import cache
 
@@ -48,9 +50,14 @@ def login_callback(request: Request, code: str, state: str):
     cache.users[state] = token
 
     with spotify.token_as(token):
-        new_user = UserCreate(spotify_id=get_spotify_id(spotify))
-        print(new_user.spotify_id)
-        # create_user(new_user)
+        spotify_id = get_spotify_id(spotify)
+        if read_user(spotify_id=spotify_id):
+            print("User with ID: ", spotify_id, "already exists")
+            # update_user
+        else:
+            new_user = UserCreate(spotify_id=spotify_id)
+            create_user(user=new_user)
+            print("Created new user with ID: ", new_user.spotify_id)
 
     return RedirectResponse('http://localhost:3000/')
 
