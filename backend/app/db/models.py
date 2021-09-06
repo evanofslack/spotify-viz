@@ -1,9 +1,10 @@
 from typing import Optional
-from sqlmodel import Field, SQLModel
+from sqlmodel import SQLModel, Field, Column, VARCHAR
 
 
 class UserBase(SQLModel):
-    spotify_id: str
+    spotify_id: str = Field(sa_column=Column(
+        "spotify_id", VARCHAR, unique=True))
 
 
 class User(UserBase, table=True):
@@ -20,3 +21,4 @@ class UserRead(UserBase):
 
 class UserUpdate(SQLModel):
     pass
+    # TODO
