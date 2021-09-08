@@ -1,7 +1,7 @@
 import tekore as tk
 import datetime
 import iso8601
-from typing import Dict
+from typing import Dict, List
 
 
 def get_spotify_id(spotify: tk.Spotify) -> str:
@@ -25,7 +25,7 @@ def get_currently_playing(spotify: tk.Spotify) -> Dict:
     return {"current_song": current_song, "current_artist": current_artist}
 
 
-def get_last_played(spotify: tk.Spotify) -> Dict:
+def get_last_played(spotify: tk.Spotify) -> Dict[str, str]:
     play_history_paging = spotify.playback_recently_played(limit=1)
     last_song = play_history_paging.items[0].track.name
     last_artist = play_history_paging.items[0].track.artists[0].name
@@ -54,7 +54,7 @@ def get_last_played(spotify: tk.Spotify) -> Dict:
             "time_units": time_units}
 
 
-def get_playlist_ids(spotify: tk.Spotify, user_id: str) -> Dict:
+def get_playlist_ids(spotify: tk.Spotify, user_id: str) -> List[str]:
     playlist_paging = spotify.playlists(user_id, limit=3,)
     playlists = playlist_paging.items
     playlist_ids = [playlist.id for playlist in playlists]
@@ -62,19 +62,19 @@ def get_playlist_ids(spotify: tk.Spotify, user_id: str) -> Dict:
     return playlist_ids
 
 
-def get_playlist_name(spotify: tk.Spotify, playlist_id: str):
+def get_playlist_name(spotify: tk.Spotify, playlist_id: str) -> str:
     full_playlist = spotify.playlist(
         playlist_id)
     return full_playlist.name
 
 
-def get_playlist_cover_image(spotify: tk.Spotify, playlist_id: str, size: str = None) -> Dict:
+def get_playlist_cover_image(spotify: tk.Spotify, playlist_id: str) -> List[str]:
     images = spotify.playlist_cover_image(playlist_id)
     urls = [image.url for image in images]
     return urls
 
 
-def get_playlist_songs(spotify: tk.Spotify, playlist_id: str):
+def get_playlist_songs(spotify: tk.Spotify, playlist_id: str) -> tuple[List[str], List[str]]:
 
     playlist_paging = spotify.playlist_items(
         playlist_id, as_tracks=False, limit=100)
