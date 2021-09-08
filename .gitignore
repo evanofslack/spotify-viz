@@ -41,3 +41,5 @@ typings/
 
 # Yarn Integrity file
 .yarn-integrity
+*.cfg
+backend/app/tekore.cfg
