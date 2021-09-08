@@ -52,3 +52,35 @@ def get_last_played(spotify: tk.Spotify) -> Dict:
             "last_artist": last_artist,
             "elapsed_time": elapsed_time,
             "time_units": time_units}
+
+
+def get_playlist_ids(spotify: tk.Spotify, user_id: str) -> Dict:
+    playlist_paging = spotify.playlists(user_id, limit=3,)
+    playlists = playlist_paging.items
+    playlist_ids = [playlist.id for playlist in playlists]
+
+    return playlist_ids
+
+
+def get_playlist_name(spotify: tk.Spotify, playlist_id: str):
+    full_playlist = spotify.playlist(
+        playlist_id)
+    return full_playlist.name
+
+
+def get_playlist_cover_image(spotify: tk.Spotify, playlist_id: str, size: str = None) -> Dict:
+    images = spotify.playlist_cover_image(playlist_id)
+    urls = [image.url for image in images]
+    return urls
+
+
+def get_playlist_songs(spotify: tk.Spotify, playlist_id: str):
+
+    playlist_paging = spotify.playlist_items(
+        playlist_id, as_tracks=False, limit=100)
+
+    playlist_items = playlist_paging.items
+
+    songs = [item.track.name for item in playlist_items]
+    artists = [item.track.artists[0].name for item in playlist_items]
+    return songs, artists
