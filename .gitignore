@@ -2,7 +2,7 @@
 __pycache__
 env
 .db
-.cfg
+tekore.cfg
 
 
 # React
