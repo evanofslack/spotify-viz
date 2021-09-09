@@ -1,5 +1,5 @@
-from typing import Optional
-from sqlmodel import SQLModel, Field, Column, VARCHAR
+from typing import Optional, List
+from sqlmodel import SQLModel, Relationship, Field, Column, VARCHAR
 
 
 class UserBase(SQLModel):
@@ -8,11 +8,9 @@ class UserBase(SQLModel):
 
 
 class User(UserBase, table=True):
+    __tablename__ = "user"
     id: Optional[int] = Field(default=None, primary_key=True)
-
-
-class UserCreate(UserBase):
-    pass
+    playlists: Optional[List["Playlist"]] = Relationship(back_populates="user")
 
 
 class UserRead(UserBase):
@@ -21,4 +19,22 @@ class UserRead(UserBase):
 
 class UserUpdate(SQLModel):
     pass
-    # TODO
+
+
+class Playlist(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    playlist_id: str
+    spotify_id: str = Field(foreign_key="user.spotify_id")
+    user: User = Relationship(back_populates="playlists")
+
+
+class PlaylistBase(SQLModel):
+    pass
+
+
+# class Playlist(PlaylistBase):
+#     id: Optional[int] = Field(default=None, primary_key=True)
+
+
+class PlaylistCreate(PlaylistBase):
+    pass
