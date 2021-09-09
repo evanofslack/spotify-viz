@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 from typing import List
 
 
-from db.models import User, UserCreate, UserRead, UserUpdate
+from models.user import User, UserCreate, UserRead, UserUpdate
 from db.database import get_session
 
 router = APIRouter(

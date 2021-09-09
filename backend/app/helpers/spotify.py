@@ -25,7 +25,7 @@ def get_currently_playing(spotify: tk.Spotify) -> Dict:
     return {"current_song": current_song, "current_artist": current_artist}
 
 
-def get_last_played(spotify: tk.Spotify) -> Dict[str, str]:
+def get_last_played(spotify: tk.Spotify) -> Dict:
     play_history_paging = spotify.playback_recently_played(limit=1)
     last_song = play_history_paging.items[0].track.name
     last_artist = play_history_paging.items[0].track.artists[0].name
@@ -55,7 +55,7 @@ def get_last_played(spotify: tk.Spotify) -> Dict[str, str]:
 
 
 def get_playlist_ids(spotify: tk.Spotify, user_id: str) -> List[str]:
-    playlist_paging = spotify.playlists(user_id, limit=3,)
+    playlist_paging = spotify.playlists(user_id, limit=2)
     playlists = playlist_paging.items
     playlist_ids = [playlist.id for playlist in playlists]
 
