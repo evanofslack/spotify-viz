@@ -54,8 +54,8 @@ def get_last_played(spotify: tk.Spotify) -> Dict:
             "time_units": time_units}
 
 
-def get_playlist_ids(spotify: tk.Spotify, user_id: str) -> List[str]:
-    playlist_paging = spotify.playlists(user_id, limit=2)
+def get_playlist_ids(spotify: tk.Spotify, user_id: str, limit: int = 3) -> List[str]:
+    playlist_paging = spotify.playlists(user_id, limit)
     playlists = playlist_paging.items
     playlist_ids = [playlist.id for playlist in playlists]
 

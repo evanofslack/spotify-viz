@@ -13,28 +13,34 @@ class User(UserBase, table=True):
     playlists: Optional[List["Playlist"]] = Relationship(back_populates="user")
 
 
+class UserCreate(User):
+    pass
+
+
 class UserRead(UserBase):
     id: int
+    playlists: Optional[List["Playlist"]]
 
 
 class UserUpdate(SQLModel):
     pass
 
 
-class Playlist(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+class PlaylistBase(SQLModel):
     playlist_id: str
-    spotify_id: str = Field(foreign_key="user.spotify_id")
+
+
+class Playlist(PlaylistBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: str = Field(foreign_key="user.id")
     user: User = Relationship(back_populates="playlists")
 
 
-class PlaylistBase(SQLModel):
+class PlaylistCreate(Playlist):
     pass
 
 
-# class Playlist(PlaylistBase):
-#     id: Optional[int] = Field(default=None, primary_key=True)
-
-
-class PlaylistCreate(PlaylistBase):
-    pass
+class PlaylistRead(PlaylistBase):
+    id: int
+    user_id: str
+    user: User
