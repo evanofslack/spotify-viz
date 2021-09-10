@@ -1,15 +1,12 @@
 from fastapi import HTTPException
 from sqlmodel import Session, select
-from typing import Dict
+from typing import Dict, List
 
 from db.database import Session, engine
+from db.models import User, UserRead, UserCreate, UserUpdate, Playlist, PlaylistCreate, Song, SongCreate, SongRead
 
 
-from db.models import User, UserRead, UserCreate, UserUpdate
-from db.database import get_session
-
-
-def create_user(user: UserCreate):
+def create_user(user: UserCreate) -> User:
     db_user = User.from_orm(user)
     with Session(engine) as session:
         session.add(db_user)
@@ -18,7 +15,7 @@ def create_user(user: UserCreate):
         return db_user
 
 
-def read_users():
+def read_users() -> List[UserRead]:
     with Session(engine) as session:
         users = session.exec(select(User)).all()
         if not users:
@@ -54,3 +51,21 @@ def delete_user(spotify_id: str) -> Dict[str, UserRead]:
         session.delete(user.first())
         session.commit()
         return {"deleted": user.first()}
+
+
+def create_playlist(playlist: PlaylistCreate) -> Playlist:
+    db_playlist = Playlist.from_orm(playlist)
+    with Session(engine) as session:
+        session.add(db_playlist)
+        session.commit()
+        session.refresh(db_playlist)
+        return db_playlist
+
+
+def create_song(song: SongCreate) -> SongRead:
+    db_song = Song.from_orm(song)
+    with Session(engine) as session:
+        session.add(db_song)
+        session.commit()
+        session.refresh(db_song)
+        return db_song
