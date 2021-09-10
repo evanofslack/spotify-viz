@@ -68,19 +68,26 @@ def get_playlist_name(spotify: tk.Spotify, playlist_id: str) -> str:
     return full_playlist.name
 
 
-def get_playlist_cover_image(spotify: tk.Spotify, playlist_id: str) -> List[str]:
+def get_playlist_cover_images(spotify: tk.Spotify, playlist_id: str) -> List[str]:
     images = spotify.playlist_cover_image(playlist_id)
     urls = [image.url for image in images]
     return urls
 
 
-def get_playlist_songs(spotify: tk.Spotify, playlist_id: str) -> tuple[List[str], List[str]]:
+def get_playlist_cover_image(spotify: tk.Spotify, playlist_id: str) -> str:
+    images = spotify.playlist_cover_image(playlist_id)
+    url = images[0].url
+    return url
+
+
+def get_playlist_songs(spotify: tk.Spotify, playlist_id: str) -> tuple[List[str], List[str], List[str]]:
 
     playlist_paging = spotify.playlist_items(
         playlist_id, as_tracks=False, limit=100)
 
     playlist_items = playlist_paging.items
 
-    songs = [item.track.name for item in playlist_items]
+    song_names = [item.track.name for item in playlist_items]
+    song_ids = [item.track.id for item in playlist_items]
     artists = [item.track.artists[0].name for item in playlist_items]
-    return songs, artists
+    return song_names, song_ids, artists

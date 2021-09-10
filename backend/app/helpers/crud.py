@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 from typing import Dict, List
 
 from db.database import Session, engine
-from db.models import User, UserRead, UserCreate, UserUpdate, Playlist, PlaylistCreate
+from db.models import User, UserRead, UserCreate, UserUpdate, Playlist, PlaylistCreate, Song, SongCreate, SongRead
 
 
 def create_user(user: UserCreate) -> User:
@@ -60,3 +60,12 @@ def create_playlist(playlist: PlaylistCreate) -> Playlist:
         session.commit()
         session.refresh(db_playlist)
         return db_playlist
+
+
+def create_song(song: SongCreate) -> SongRead:
+    db_song = Song.from_orm(song)
+    with Session(engine) as session:
+        session.add(db_song)
+        session.commit()
+        session.refresh(db_song)
+        return db_song
