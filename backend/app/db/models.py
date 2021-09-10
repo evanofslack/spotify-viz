@@ -28,12 +28,18 @@ class UserUpdate(SQLModel):
 
 class PlaylistBase(SQLModel):
     playlist_id: str
+    playlist_name: str
+    playlist_cover_image: str
 
 
 class Playlist(PlaylistBase, table=True):
+    __tablename__ = "playlist"
     id: Optional[int] = Field(default=None, primary_key=True)
+
     user_id: str = Field(foreign_key="user.id")
     user: User = Relationship(back_populates="playlists")
+
+    songs: Optional[List["Song"]] = Relationship(back_populates="playlist")
 
 
 class PlaylistCreate(Playlist):
@@ -44,3 +50,27 @@ class PlaylistRead(PlaylistBase):
     id: int
     user_id: str
     user: User
+    songs: Optional[List["Song"]]
+
+
+class SongBase(SQLModel):
+    song_id: str
+    song_name: str
+    artist: str
+
+
+class Song(SongBase, table=True):
+    __tablename__ = "song"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    playlist_id: Optional[str] = Field(foreign_key="playlist.id")
+    playlist: Optional[Playlist] = Relationship(back_populates="songs")
+
+
+class SongCreate(Song):
+    pass
+
+
+class SongRead(SongBase):
+    id: int
+    playlist_id: Optional[str]
+    playlist: Optional[Playlist]
