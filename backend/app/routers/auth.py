@@ -3,10 +3,10 @@ from fastapi.responses import RedirectResponse
 import tekore as tk
 
 from helpers.tekore_setup import spotify, cred, scope
-from helpers.spotify import get_spotify_id
-from helpers.crud import create_user, read_user
+from helpers.spotify import get_spotify_id, get_playlist_ids
+from helpers.crud import create_user, read_user, create_playlist
 
-from db.models import UserCreate
+from db.models import UserCreate, PlaylistCreate
 from cache import cache
 
 router = APIRouter(
@@ -51,18 +51,25 @@ def login_callback(request: Request, code: str, state: str):
 
     with spotify.token_as(token):
         spotify_id = get_spotify_id(spotify)
+        playlist_ids = get_playlist_ids(spotify, spotify_id, limit=3)
+
         if read_user(spotify_id=spotify_id):
             print("User with ID: ", spotify_id, "already exists")
             # update_user
         else:
             new_user = UserCreate(spotify_id=spotify_id)
-            create_user(user=new_user)
+            db_user = create_user(user=new_user)
             print("Created new user with ID: ", new_user.spotify_id)
+            for id in playlist_ids:
+                new_playlist = PlaylistCreate(
+                    playlist_id=id, user_id=db_user.id, user=new_user)
+                db_playlist = create_playlist(new_playlist)
+                print("Created playlist: ", db_playlist.id)
 
     return RedirectResponse('http://localhost:3000/')
 
 
-@router.get("/logout")
+@ router.get("/logout")
 def logout(request: Request):
     uid = request.session.pop('user', None)
     if uid is not None:
