@@ -11,7 +11,8 @@ async def get_spotify_id(spotify: tk.Spotify) -> str:
 
 
 async def get_display_name(spotify: tk.Spotify) -> str:
-    display_name = await spotify.current_user().display_name
+    current_user = await spotify.current_user()
+    display_name = current_user.display_name
     return display_name
 
 

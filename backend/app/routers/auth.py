@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 import tekore as tk
 
-from helpers.tekore_setup import spotify, cred, scope
+from helpers.tekore_setup import spotify, cred, scope, sender
 from helpers.spotify import get_spotify_id, get_playlist_ids, get_playlist_name, get_playlist_cover_image, get_playlist_songs
 from helpers.crud import create_user, read_user, create_playlist, create_song
 
@@ -51,8 +51,8 @@ async def login_callback(request: Request, code: str, state: str):
     cache.users[state] = token
 
     with spotify.token_as(token):
-        spotify_id = get_spotify_id(spotify)
-        playlist_ids = get_playlist_ids(spotify, spotify_id, limit=10)
+        spotify_id = await get_spotify_id(spotify)
+        playlist_ids = await get_playlist_ids(spotify, spotify_id, limit=10)
 
         if await read_user(spotify_id=spotify_id):
             print("User with ID: ", spotify_id, "already exists")
@@ -65,8 +65,8 @@ async def login_callback(request: Request, code: str, state: str):
 
             """ CREATE PLAYLISTS """
             for playlist_id in playlist_ids:
-                playlist_name = get_playlist_name(spotify, playlist_id)
-                playlist_cover_image = get_playlist_cover_image(
+                playlist_name = await get_playlist_name(spotify, playlist_id)
+                playlist_cover_image = await get_playlist_cover_image(
                     spotify, playlist_id)
 
                 new_playlist = PlaylistCreate(
@@ -79,7 +79,7 @@ async def login_callback(request: Request, code: str, state: str):
                 print("Created playlist: ", db_playlist.playlist_name)
 
                 """ CREATE SONGS """
-                song_names, song_ids, artists = get_playlist_songs(
+                song_names, song_ids, artists = await get_playlist_songs(
                     spotify, playlist_id)
 
                 for song_name, song_id, artist in zip(song_names, song_ids, artists):
@@ -92,6 +92,8 @@ async def login_callback(request: Request, code: str, state: str):
 
                     db_song = await create_song(new_song)
                     print("Created song: ", db_song.song_name)
+
+    await sender.close()
 
     return RedirectResponse('http://localhost:3000/')
 

@@ -12,7 +12,7 @@ router = APIRouter(
 
 
 @router.get("/overview")
-def get_overview(request: Request):
+async def get_overview(request: Request):
     user = request.session.get('user', None)
     token = cache.users.get(user, None)
 
@@ -26,9 +26,9 @@ def get_overview(request: Request):
 
     try:
         with spotify.token_as(token):
-            display_name = get_display_name(spotify)
-            current = get_currently_playing(spotify)
-            last = get_last_played(spotify)
+            display_name = await get_display_name(spotify)
+            current = await get_currently_playing(spotify)
+            last = await get_last_played(spotify)
 
     except tk.HTTPError as err:
         print(str(err))
