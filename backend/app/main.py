@@ -4,7 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
 from routers import users, auth, data
-from db.database import create_db_and_tables
+from db.models import Song, Playlist, User
+from db.database import init_db
 from config import get_settings, Settings
 
 
@@ -30,12 +31,12 @@ app.add_middleware(
 
 
 @app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
+async def on_startup():
+    await init_db()
 
 
 @app.get("/")
-def pong(settings: Settings = Depends(get_settings)):
+async def pong(settings: Settings = Depends(get_settings)):
     return {
         "message": "Hello World",
         "environment": settings.environment,

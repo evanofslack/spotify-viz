@@ -15,7 +15,7 @@ router = APIRouter(
 
 
 @router.get("/is_logged_in")
-def is_logged_in(request: Request):
+async def is_logged_in(request: Request):
     user = request.session.get('user', None)
     token = cache.users.get(user, None)
 
@@ -27,7 +27,7 @@ def is_logged_in(request: Request):
 
 
 @router.get("/login")
-def login(request: Request):
+async def login(request: Request):
     if 'user' in request.session:
         return RedirectResponse(url='/overview')
 
@@ -38,9 +38,10 @@ def login(request: Request):
 
 
 @router.get("/callback")
-def login_callback(request: Request, code: str, state: str):
+async def login_callback(request: Request, code: str, state: str):
 
     auth = cache.auths.pop(state, None)
+    print("state: ", state)
     if auth is None:
         return 'Invalid state!', 400
 
@@ -53,13 +54,13 @@ def login_callback(request: Request, code: str, state: str):
         spotify_id = get_spotify_id(spotify)
         playlist_ids = get_playlist_ids(spotify, spotify_id, limit=10)
 
-        if read_user(spotify_id=spotify_id):
+        if await read_user(spotify_id=spotify_id):
             print("User with ID: ", spotify_id, "already exists")
             # update_user
         else:
             """ CREATE USER """
             new_user = UserCreate(spotify_id=spotify_id)
-            db_user = create_user(user=new_user)
+            db_user = await create_user(user=new_user)
             print("Created new user with ID: ", new_user.spotify_id)
 
             """ CREATE PLAYLISTS """
@@ -74,7 +75,7 @@ def login_callback(request: Request, code: str, state: str):
                     playlist_cover_image=playlist_cover_image,
                     user_id=db_user.id, user=new_user)
 
-                db_playlist = create_playlist(new_playlist)
+                db_playlist = await create_playlist(new_playlist)
                 print("Created playlist: ", db_playlist.playlist_name)
 
                 """ CREATE SONGS """
@@ -87,8 +88,9 @@ def login_callback(request: Request, code: str, state: str):
                                           artist=artist,
                                           playlist_id=db_playlist.id,
                                           playlist=new_playlist)
+                    # print(new_song.song_name)
 
-                    db_song = create_song(new_song)
+                    db_song = await create_song(new_song)
                     print("Created song: ", db_song.song_name)
 
     return RedirectResponse('http://localhost:3000/')

@@ -14,6 +14,8 @@ tekore = "^3.7.1"
 requests = "^2.26.0"
 itsdangerous = "^2.0.1"
 iso8601 = "^0.1.16"
+aiosqlite = "^0.17.0"
+asyncio = "^3.4.3"
 
 [tool.poetry.dev-dependencies]
 
