@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 import tekore as tk
 
-from helpers.tekore_setup import spotify, cred, scope, sender
+from helpers.tekore_setup import spotify, cred, scope
 from helpers.spotify import get_spotify_id, get_playlist_ids, get_playlist_name, get_playlist_cover_image, get_playlist_songs
 from helpers.crud import create_user, read_user, create_playlist, create_song
 
@@ -92,8 +92,6 @@ async def login_callback(request: Request, code: str, state: str):
 
                     db_song = await create_song(new_song)
                     print("Created song: ", db_song.song_name)
-
-    await sender.close()
 
     return RedirectResponse('http://localhost:3000/')
 
