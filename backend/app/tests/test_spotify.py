@@ -6,6 +6,7 @@ from app.helpers.spotify import (
     get_spotify_id,
     get_display_name,
     get_currently_playing,
+    elapsed_time_helper,
     get_last_played,
     get_playlist_ids,
     get_playlist_name,
@@ -48,6 +49,48 @@ async def test_get_currently_playing(tekore_client):
     assert type(currently_playing) is dict
     assert type(currently_playing["current_song"]) is str
     assert type(currently_playing["current_artist"]) is str
+
+
+def test_elapsed_time_helper_min():
+    elapsed_time, time_units = elapsed_time_helper(0)
+
+    assert elapsed_time == 1
+    assert time_units == "minute"
+
+
+def test_elapsed_time_helper_mins():
+    elapsed_time, time_units = elapsed_time_helper(59)
+
+    assert elapsed_time == 59
+    assert time_units == "minutes"
+
+
+def test_elapsed_time_helper_hour():
+    elapsed_time, time_units = elapsed_time_helper(60)
+
+    assert elapsed_time == 1
+    assert time_units == "hour"
+
+
+def test_elapsed_time_helper_hours():
+    elapsed_time, time_units = elapsed_time_helper(120)
+
+    assert elapsed_time == 2
+    assert time_units == "hours"
+
+
+def test_elapsed_time_helper_day():
+    elapsed_time, time_units = elapsed_time_helper(24*60)
+
+    assert elapsed_time == 1
+    assert time_units == "day"
+
+
+def test_elapsed_time_helper_days():
+    elapsed_time, time_units = elapsed_time_helper(2*24*60)
+
+    assert elapsed_time == 2
+    assert time_units == "days"
 
 
 @pytest.mark.asyncio

@@ -1,7 +1,7 @@
 import tekore as tk
 import datetime
 import iso8601
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 
 async def get_spotify_id(spotify: tk.Spotify) -> str:
@@ -27,6 +27,35 @@ async def get_currently_playing(spotify: tk.Spotify) -> Dict:
     return {"current_song": current_song, "current_artist": current_artist}
 
 
+def elapsed_time_helper(elapsed_minutes: int) -> Tuple[int, str]:
+
+    if elapsed_minutes < 2:
+        elapsed_time = 1
+        time_units = "minute"
+
+    if elapsed_minutes >= 2 and elapsed_minutes < 60:
+        elapsed_time = elapsed_minutes
+        time_units = "minutes"
+
+    if elapsed_minutes >= 60 and elapsed_minutes < 2*60:
+        elapsed_time = round(elapsed_minutes / 60)
+        time_units = "hour"
+
+    if elapsed_minutes >= 2*60 and elapsed_minutes < 24*60:
+        elapsed_time = round(elapsed_minutes / 60)
+        time_units = "hours"
+
+    if elapsed_minutes >= 24*60 and elapsed_minutes < 2*24*60:
+        elapsed_time = round(elapsed_minutes / 60 / 24)
+        time_units = "day"
+
+    if elapsed_minutes >= 2*24*60:
+        elapsed_time = round(elapsed_minutes / 60 / 24)
+        time_units = "days"
+
+    return elapsed_time, time_units
+
+
 async def get_last_played(spotify: tk.Spotify) -> Dict:
     play_history_paging = await spotify.playback_recently_played(limit=1)
     last_song = play_history_paging.items[0].track.name
@@ -38,29 +67,7 @@ async def get_last_played(spotify: tk.Spotify) -> Dict:
     last_played_at_parsed = iso8601.parse_date(str(last_played_at))
     elapsed_minutes = round((now_iso8601-last_played_at_parsed).seconds / 60)
 
-    if elapsed_minutes < 2:
-        elapsed_time = 1
-        time_units = "minute"
-
-    if elapsed_minutes < 60:
-        elapsed_time = elapsed_minutes
-        time_units = "minutes"
-
-    if elapsed_minutes >= 60 and elapsed_minutes < 120:
-        elapsed_time = round(elapsed_minutes / 60)
-        time_units = "hour"
-
-    if elapsed_minutes >= 120 and elapsed_minutes < 1440:
-        elapsed_time = round(elapsed_minutes / 60)
-        time_units = "hours"
-
-    if elapsed_minutes >= 1440 and elapsed_minutes < 2880:
-        elapsed_time = round(elapsed_minutes / 60 / 24)
-        time_units = "day"
-
-    if elapsed_minutes >= 2880:
-        elapsed_time = round(elapsed_minutes / 60 / 24)
-        time_units = "days"
+    elapsed_time, time_units = elapsed_time_helper(elapsed_minutes)
 
     return {"last_song": last_song,
             "last_artist": last_artist,
