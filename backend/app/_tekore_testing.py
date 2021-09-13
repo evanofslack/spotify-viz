@@ -4,7 +4,7 @@ import tekore as tk
 from helpers.spotify import get_spotify_id, get_playlist_songs, get_playlist_ids, get_playlist_name, get_playlist_cover_image
 from helpers.tekore_setup import spotify
 from db.models import PlaylistCreate, Playlist, UserCreate, User, Song
-from db.database import Session, engine, create_db_and_tables
+from db.database import engine
 
 # create_db_and_tables()
 
@@ -64,7 +64,7 @@ async def main():
                 print(song, "by: ", artist)
                 print(song_id)
 
-    await sender.close()
+    # await sender.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
