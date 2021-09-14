@@ -1,11 +1,12 @@
 from typing import Optional, List
 from sqlmodel import SQLModel, Relationship, Field, Column, VARCHAR
+from pydantic import BaseModel
 
 
 class UserBase(SQLModel):
     spotify_id: str = Field(sa_column=Column(
         "spotify_id", VARCHAR, unique=True))
-    # created_playlists: bool = False
+    created_playlists: bool = False
 
 
 class User(UserBase, table=True):
@@ -75,3 +76,13 @@ class SongRead(SongBase):
     id: int
     playlist_id: Optional[str]
     playlist: Optional[Playlist]
+
+
+class UserOverview(BaseModel):
+    display_name: str
+    current_song: Optional[str]
+    current_artist: Optional[str]
+    last_song: str
+    last_artist: str
+    elapsed_time: int
+    time_units: str
