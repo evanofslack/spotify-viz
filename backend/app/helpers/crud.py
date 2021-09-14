@@ -3,7 +3,16 @@ from sqlmodel import select
 from typing import Dict, List
 
 from db.database import async_session
-from db.models import User, UserRead, UserCreate, UserUpdate, Playlist, PlaylistCreate, Song, SongCreate, SongRead
+from db.models import (User,
+                       UserRead,
+                       UserCreate,
+                       UserUpdate,
+                       Playlist,
+                       PlaylistCreate,
+                       PlaylistRead,
+                       Song,
+                       SongCreate,
+                       SongRead)
 
 
 async def create_user(user: UserCreate) -> User:
@@ -26,6 +35,8 @@ async def read_users() -> List[UserRead]:
 async def read_user(spotify_id: str) -> UserRead:
     async with async_session() as session:
         user = await session.execute(select(User).where(User.spotify_id == spotify_id))
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
         return user.first()
 
 
@@ -60,6 +71,15 @@ async def create_playlist(playlist: PlaylistCreate) -> Playlist:
         await session.commit()
         await session.refresh(db_playlist)
         return db_playlist
+
+
+async def read_playlists(user_id: str) -> List[PlaylistRead]:
+    async with async_session() as session:
+        playlists = await session.execute(select(Playlist).where(Playlist.user_id == user_id))
+        if not playlists:
+            raise HTTPException(
+                status_code=404, detail="User has no playlists")
+        return playlists.all()
 
 
 async def create_song(song: SongCreate) -> SongRead:

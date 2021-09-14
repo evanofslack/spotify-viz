@@ -5,6 +5,7 @@ from sqlmodel import SQLModel, Relationship, Field, Column, VARCHAR
 class UserBase(SQLModel):
     spotify_id: str = Field(sa_column=Column(
         "spotify_id", VARCHAR, unique=True))
+    # created_playlists: bool = False
 
 
 class User(UserBase, table=True):
