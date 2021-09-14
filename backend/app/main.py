@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
 from routers import users, auth, data
-from db.models import Song, Playlist, User
 from db.database import init_db
 from config import get_settings, Settings
 
