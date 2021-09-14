@@ -28,6 +28,10 @@ function Home() {
         );
     }, []);
 
+    useEffect(() => {
+        fetch("/playlists");
+    }, []);
+
     const {
         display_name,
         current_song,
