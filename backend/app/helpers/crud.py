@@ -47,12 +47,13 @@ async def read_user(spotify_id: str) -> UserRead:
         except MultipleResultsFound:
             raise HTTPException(status_code=404, detail="Multiple users found")
 
-        return user
 
-
-async def update_user(spotify_id: str, user: UserUpdate) -> UserRead:
+async def update_user(user_id: str, user: UserUpdate) -> UserRead:
     async with async_session() as session:
-        db_user = await session.get(User, spotify_id)
+        db_user = await session.get(User, user_id)
+        # query = await session.execute(select(User).where(User.spotify_id == spotify_id))
+        # users = [user for user in query.one()]
+        # db_user = users[0]
         if not db_user:
             raise HTTPException(status_code=404, detail="User not found")
         user_data = user.dict(exclude_unset=True)

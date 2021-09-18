@@ -17,10 +17,12 @@ from helpers.crud import (
     create_playlist,
     create_song,
     read_user,
+    update_user,
     read_playlists)
 
 from db.models import (
     UserOverview,
+    UserUpdate,
     PlaylistCreate,
     SongCreate,
     PlaylistRead)
@@ -124,8 +126,10 @@ async def get_playlists(request: Request):
 
                 # update user.created_playlists
                 playlists = await read_playlists(current_user.id)
-                for playlist in playlists:
-                    print(playlist.playlist_name)
+
+                updated_user = await update_user(current_user.id,
+                                                 UserUpdate(created_playlists=True))
+                print(updated_user.created_playlists)
                 return playlists
 
     except tk.HTTPError as err:

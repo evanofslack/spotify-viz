@@ -25,7 +25,8 @@ class UserRead(UserBase):
 
 
 class UserUpdate(SQLModel):
-    pass
+    created_playlists: Optional[bool] = None
+    playlists: Optional[List["Playlist"]] = []
 
 
 class PlaylistBase(SQLModel):
