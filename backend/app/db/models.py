@@ -87,3 +87,9 @@ class UserOverview(BaseModel):
     last_artist: str
     elapsed_time: int
     time_units: str
+
+
+class PlaylistOverview(BaseModel):
+    playlist_id = str
+    playlist_name = str
+    playlist_cover_image = str
