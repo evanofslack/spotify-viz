@@ -2,7 +2,8 @@
 __pycache__
 env
 .db
-.cfg
+tekore.cfg
+.env
 
 
 # React
@@ -41,3 +42,5 @@ typings/
 
 # Yarn Integrity file
 .yarn-integrity
+*.cfg
+backend/app/tekore.cfg
