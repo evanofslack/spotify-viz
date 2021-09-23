@@ -4,6 +4,7 @@ env
 .db
 tekore.cfg
 .env
+*.sqlite3
 
 
 # React
