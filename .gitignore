@@ -45,3 +45,4 @@ typings/
 .yarn-integrity
 *.cfg
 backend/app/tekore.cfg
+backend/app/database.db
