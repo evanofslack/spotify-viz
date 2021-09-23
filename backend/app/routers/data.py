@@ -125,6 +125,7 @@ async def create_db_playlists(playlists: List[PlaylistCreate]):
     for playlist in playlists:
         db_playlist = await create_playlist(playlist)
         print("Created playlist: ", db_playlist.playlist_name)
+    return {"message": "created playlists"}
 
 
 async def create_db_songs(token, playlists: List[PlaylistCreate]):
@@ -140,3 +141,4 @@ async def create_db_songs(token, playlists: List[PlaylistCreate]):
                                       playlist=playlist)
                 db_song = await create_song(new_song)
                 print("Created song: ", db_song.song_name)
+    return {"message": "created songs"}
