@@ -8,8 +8,6 @@ import {
     StatHelpText,
 } from "@chakra-ui/react";
 
-// Spotracks
-
 function LastListening(props) {
     const containerbg = useColorModeValue("#ededed", "#302f32");
     const subheader = useColorModeValue("gray.900", "gray.100");

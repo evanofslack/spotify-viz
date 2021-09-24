@@ -1,6 +1,6 @@
 import React from "react";
 import { Flex } from "@chakra-ui/react";
-import NavBar from "./NavBar";
+import NavBar from "../common/NavBar";
 import LoginButton from "./LoginButton";
 import LoginBlurb from "./LoginBlurb";
 
