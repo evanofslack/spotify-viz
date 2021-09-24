@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useQuery } from "react-query";
 import { Flex, Box } from "@chakra-ui/react";
 import NavBar from "../common/NavBar";
 import HomeBlurb from "./HomeBlurb";
@@ -6,54 +7,28 @@ import CurrentlyListening from "./CurrentlyListening";
 import LastListening from "./LastListening";
 
 function Home() {
-    const [data, setData] = useState({
-        display_name: null,
-        current_song: null,
-        current_artist: null,
-    });
+    const { isLoading, error, data } = useQuery("repoData", () =>
+        fetch("/overview").then((res) => res.json())
+    );
 
-    useEffect(() => {
-        fetch("/overview").then((response) =>
-            response.json().then((data) => {
-                setData({
-                    display_name: data.display_name,
-                    current_song: data.current_song,
-                    current_artist: data.current_artist,
-                    last_song: data.last_song,
-                    last_artist: data.last_artist,
-                    elapsed_time: data.elapsed_time,
-                    time_units: data.time_units,
-                });
-            })
-        );
-    }, []);
+    if (isLoading) return "Loading...";
 
-    useEffect(() => {
-        fetch("/playlists");
-    }, []);
-
-    const {
-        display_name,
-        current_song,
-        current_artist,
-        last_song,
-        last_artist,
-        elapsed_time,
-        time_units,
-    } = data;
+    if (error) return "An error has occurred: " + error.message;
 
     return (
         <Flex align="center" justify="center" direction="column">
             <NavBar />
             <Box m="10">
-                <HomeBlurb name={display_name} />
-                {current_song && <CurrentlyListening song={current_song} artist={current_artist} />}
-                {!current_song && (
+                <HomeBlurb name={data.display_name} />
+                {data.current_song && (
+                    <CurrentlyListening song={data.current_song} artist={data.current_artist} />
+                )}
+                {!data.current_song && (
                     <LastListening
-                        song={last_song}
-                        artist={last_artist}
-                        elapsedTime={elapsed_time}
-                        timeUnits={time_units}
+                        song={data.last_song}
+                        artist={data.last_artist}
+                        elapsedTime={data.elapsed_time}
+                        timeUnits={data.time_units}
                     />
                 )}
             </Box>

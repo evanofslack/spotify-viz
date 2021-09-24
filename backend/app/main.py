@@ -43,6 +43,10 @@ async def pong(settings: Settings = Depends(get_settings)):
     }
 
 
+@app.get("/react")
+async def test_react():
+    return {"message": "hello"}
+
 if __name__ == "__main__":
     uvicorn.run(
         "main:app", port=8080, host='0.0.0.0', reload=True,
