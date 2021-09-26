@@ -5,18 +5,30 @@ from typing import Dict, List, Tuple
 
 
 async def get_spotify_id(spotify: tk.Spotify) -> str:
+    """
+    Get user's spotify ID
+
+    """
     current_user = await spotify.current_user()
     spotify_id = current_user.id
     return spotify_id
 
 
 async def get_display_name(spotify: tk.Spotify) -> str:
+    """
+    Get user's display name
+
+    """
     current_user = await spotify.current_user()
     display_name = current_user.display_name
     return display_name
 
 
 async def get_currently_playing(spotify: tk.Spotify) -> Dict:
+    """
+    Get user's current playback
+
+    """
     currently_playing = await spotify.playback_currently_playing(tracks_only=True)
     if currently_playing and currently_playing.is_playing:
         current_song = currently_playing.item.name
@@ -29,7 +41,10 @@ async def get_currently_playing(spotify: tk.Spotify) -> Dict:
 
 
 def elapsed_time_helper(elapsed_minutes: int) -> Tuple[int, str]:
+    """
+    Convert minutes to lowest time denomination 
 
+    """
     if elapsed_minutes < 2:
         elapsed_time = 1
         time_units = "minute"
@@ -58,6 +73,10 @@ def elapsed_time_helper(elapsed_minutes: int) -> Tuple[int, str]:
 
 
 async def get_last_played(spotify: tk.Spotify) -> Dict:
+    """
+    Get user's last playback
+
+    """
     play_history_paging = await spotify.playback_recently_played(limit=1)
     last_song = play_history_paging.items[0].track.name
     last_artist = play_history_paging.items[0].track.artists[0].name
@@ -80,6 +99,10 @@ async def get_last_played(spotify: tk.Spotify) -> Dict:
 
 
 async def get_playlist_ids(spotify: tk.Spotify, user_id: str, limit: int = 3) -> List[str]:
+    """
+    Get list of user's playlist IDs
+
+    """
     playlist_paging = await spotify.playlists(user_id, limit)
     playlists = playlist_paging.items
     playlist_ids = [playlist.id for playlist in playlists]
@@ -88,24 +111,39 @@ async def get_playlist_ids(spotify: tk.Spotify, user_id: str, limit: int = 3) ->
 
 
 async def get_playlist_name(spotify: tk.Spotify, playlist_id: str) -> str:
+    """
+    Get playlist name from playlist ID
+
+    """
     full_playlist = await spotify.playlist(playlist_id)
     return full_playlist.name
 
 
 async def get_playlist_cover_images(spotify: tk.Spotify, playlist_id: str) -> List[str]:
+    """
+    Get playlist cover images from playlist ID
+
+    """
     images = await spotify.playlist_cover_image(playlist_id)
     urls = [image.url for image in images]
     return urls
 
 
 async def get_playlist_cover_image(spotify: tk.Spotify, playlist_id: str) -> str:
+    """
+    Get playlist cover image from playlist ID, returns the largest resolution image
+
+    """
     images = await spotify.playlist_cover_image(playlist_id)
     url = images[0].url
     return url
 
 
 async def get_playlist_songs(spotify: tk.Spotify, playlist_id: str) -> tuple[List[str], List[str], List[str]]:
+    """
+    Get all songs from a playlist
 
+    """
     playlist_paging = await spotify.playlist_items(
         playlist_id, as_tracks=False, limit=100)
 
