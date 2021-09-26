@@ -11,6 +11,7 @@ on:
 
 jobs:
     build:
+        environment: tekore_testing
         runs-on: ubuntu-latest
 
         steps:
