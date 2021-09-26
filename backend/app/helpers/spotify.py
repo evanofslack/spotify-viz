@@ -21,10 +21,11 @@ async def get_currently_playing(spotify: tk.Spotify) -> Dict:
     if currently_playing and currently_playing.is_playing:
         current_song = currently_playing.item.name
         current_artist = currently_playing.item.artists[0].name
+        current_image = currently_playing.item.album.images[0].url
     else:
-        current_song, current_artist = None, None
+        current_song, current_artist, current_image = None, None, None
 
-    return {"current_song": current_song, "current_artist": current_artist}
+    return {"current_song": current_song, "current_artist": current_artist, "current_image": current_image}
 
 
 def elapsed_time_helper(elapsed_minutes: int) -> Tuple[int, str]:
@@ -60,6 +61,8 @@ async def get_last_played(spotify: tk.Spotify) -> Dict:
     play_history_paging = await spotify.playback_recently_played(limit=1)
     last_song = play_history_paging.items[0].track.name
     last_artist = play_history_paging.items[0].track.artists[0].name
+    last_image = play_history_paging.items[0].track.album.images[0].url
+
     last_played_at = play_history_paging.items[0].played_at
 
     now_iso8601 = datetime.datetime.fromisoformat(datetime.datetime.now().astimezone().replace(
@@ -71,6 +74,7 @@ async def get_last_played(spotify: tk.Spotify) -> Dict:
 
     return {"last_song": last_song,
             "last_artist": last_artist,
+            "last_image": last_image,
             "elapsed_time": elapsed_time,
             "time_units": time_units}
 
