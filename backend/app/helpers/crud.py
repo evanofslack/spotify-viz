@@ -15,8 +15,6 @@ from db.models import (User,
                        SongCreate,
                        SongRead)
 
-""" Crud database functions """
-
 
 async def create_user(user: UserCreate) -> UserRead:
     """
