@@ -5,7 +5,7 @@ import tekore as tk
 from helpers.tekore_setup import spotify, cred, scope
 from helpers.spotify import get_spotify_id
 from helpers.crud import create_user, read_user
-from db.models import UserCreate
+from db.models import UserCreate, Login, RedirectURL
 from cache import cache
 
 router = APIRouter(
@@ -13,20 +13,28 @@ router = APIRouter(
 )
 
 
-@router.get("/is_logged_in")
+@router.get("/is_logged_in", response_model=Login)
 async def is_logged_in(request: Request):
+    """
+    Index cache to determine is user is logged in
+
+    """
     user = request.session.get('user', None)
     token = cache.users.get(user, None)
 
     if user is None or token is None:
         request.session.pop('user', None)
-        return {"isLoggedIn": False, "message": "Not logged in"}
+        return {"is_logged_in": False, "message": "Not logged in"}
     else:
-        return {"isLoggedIn": True}
+        return {"is_logged_in": True, "message": "Sucessfully logged in"}
 
 
-@router.get("/login")
+@router.get("/login", response_model=RedirectURL)
 async def login(request: Request):
+    """
+    Return spotify login url 
+
+    """
     if 'user' in request.session:
         return RedirectResponse(url='/overview')
 
@@ -37,8 +45,11 @@ async def login(request: Request):
 
 
 @router.get("/callback")
-async def login_callback(request: Request, code: str, state: str):
+async def login_callback(request: Request, code: str, state: str) -> RedirectResponse:
+    """
+    Create user and return redirect url to home page
 
+    """
     auth = cache.auths.pop(state, None)
     print("state: ", state)
     if auth is None:
@@ -65,7 +76,11 @@ async def login_callback(request: Request, code: str, state: str):
 
 
 @ router.get("/logout")
-def logout(request: Request):
+def logout(request: Request) -> RedirectResponse:
+    """
+    Remove user from cache 
+
+    """
     uid = request.session.pop('user', None)
     if uid is not None:
         cache.users.pop(uid, None)

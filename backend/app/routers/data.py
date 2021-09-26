@@ -17,6 +17,7 @@ from helpers.crud import (
     create_playlist,
     create_song,
     read_user,
+    read_playlist,
     update_user,
     read_playlists)
 
@@ -38,6 +39,10 @@ router = APIRouter(
 
 @router.get("/overview", response_model=UserOverview)
 async def get_overview(request: Request):
+    """
+    Return overview of user's listening history
+
+    """
     user = request.session.get('user', None)
     token = cache.users.get(user, None)
 
@@ -76,6 +81,10 @@ async def get_overview(request: Request):
 
 @router.get("/playlists", response_model=List[PlaylistOverview])
 async def get_playlists(request: Request, bg_tasks: BackgroundTasks):
+    """
+    Return a user's playlists. Initiate background task to save playlists to database
+
+    """
     user = request.session.get('user', None)
     token = cache.users.get(user, None)
 
@@ -118,19 +127,30 @@ async def get_playlists(request: Request, bg_tasks: BackgroundTasks):
         print(str(err))
         return {"error": "Could not fetch info"}
 
-    # bg_tasks.add_task(create_db_playlists, playlists_db)
+    bg_tasks.add_task(create_db_playlists, playlists_db)
     # bg_tasks.add_task(create_db_songs, token, playlists_db)
     return playlists
 
 
-async def create_db_playlists(playlists: List[PlaylistCreate]):
+async def create_db_playlists(playlists: List[PlaylistCreate]) -> None:
+    """
+    Query database to see if playlist exists. If not, create the playlist. 
+
+    """
     for playlist in playlists:
-        db_playlist = await create_playlist(playlist)
-        print("Created playlist: ", db_playlist.playlist_name)
+        playlist_read = await read_playlist(playlist.playlist_id)
+        if not playlist_read:
+            db_playlist = await create_playlist(playlist)
+            print("Created playlist: ", db_playlist.playlist_name)
+
     return {"message": "created playlists"}
 
 
 async def create_db_songs(token, playlists: List[PlaylistCreate]):
+    """
+    Query database to see if song exists in the correct playlist. If not, create the song. 
+
+    """
     with spotify.token_as(token):
         for playlist in playlists:
             song_names, song_ids, artists = await get_playlist_songs(spotify, playlist.playlist_id)

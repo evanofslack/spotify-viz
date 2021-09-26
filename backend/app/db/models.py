@@ -2,6 +2,11 @@ from typing import Optional, List
 from sqlmodel import SQLModel, Relationship, Field, Column, VARCHAR
 from pydantic import BaseModel
 
+""" Models for API responses as well as schemas for database """
+
+
+# ---------------------- USER ---------------------- #
+
 
 class UserBase(SQLModel):
     spotify_id: str = Field(sa_column=Column(
@@ -27,6 +32,21 @@ class UserRead(UserBase):
 class UserUpdate(SQLModel):
     created_playlists: Optional[bool] = None
     playlists: Optional[List["Playlist"]] = []
+
+
+class UserOverview(BaseModel):
+    display_name: str
+    current_song: Optional[str]
+    current_artist: Optional[str]
+    current_image: Optional[str]
+    last_song: str
+    last_artist: str
+    last_image: str
+    elapsed_time: int
+    time_units: str
+
+
+# ---------------------- PLAYLIST ---------------------- #
 
 
 class PlaylistBase(SQLModel):
@@ -56,6 +76,15 @@ class PlaylistRead(PlaylistBase):
     songs: Optional[List["Song"]]
 
 
+class PlaylistOverview(BaseModel):
+    playlist_id: str
+    playlist_name: str
+    playlist_cover_image: str
+
+
+# ---------------------- SONG ---------------------- #
+
+
 class SongBase(SQLModel):
     song_id: str
     song_name: str
@@ -79,19 +108,12 @@ class SongRead(SongBase):
     playlist: Optional[Playlist]
 
 
-class UserOverview(BaseModel):
-    display_name: str
-    current_song: Optional[str]
-    current_artist: Optional[str]
-    current_image: Optional[str]
-    last_song: str
-    last_artist: str
-    last_image: str
-    elapsed_time: int
-    time_units: str
+# ---------------------- AUTH ---------------------- #
+
+class Login(BaseModel):
+    is_logged_in: bool
+    message: str
 
 
-class PlaylistOverview(BaseModel):
-    playlist_id: str
-    playlist_name: str
-    playlist_cover_image: str
+class RedirectURL(BaseModel):
+    url: str

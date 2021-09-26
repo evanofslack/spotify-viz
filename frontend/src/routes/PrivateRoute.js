@@ -7,8 +7,8 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
     useEffect(() => {
         fetch("/is_logged_in").then((response) =>
             response.json().then((data) => {
-                console.log(data.isLoggedIn);
-                setIsLoggedIn(data.isLoggedIn);
+                console.log(data.is_logged_in);
+                setIsLoggedIn(data.is_logged_in);
             })
         );
     }, []);
