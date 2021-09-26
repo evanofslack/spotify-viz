@@ -1,6 +1,7 @@
 import tekore as tk
 import pytest
 from dotenv import load_dotenv
+import os
 
 from app.helpers.spotify import (
     get_spotify_id,
@@ -19,8 +20,12 @@ from app.helpers.spotify import (
 @pytest.fixture
 def tekore_client() -> tk.Spotify:
     load_dotenv()
-    conf = tk.config_from_environment(return_refresh=True)
-    token = tk.refresh_user_token(*conf[:2], conf[3])
+
+    id = os.environ["SPOTIFY_CLIENT_ID"]
+    secret = os.environ["SPOTIFY_CLIENT_SECRET"]
+    refresh = os.environ["SPOTIFY_USER_REFRESH"]
+    token = tk.refresh_user_token(
+        client_id=id, client_secret=secret, refresh_token=refresh)
 
     sender = tk.RetryingSender(sender=tk.AsyncSender())
     spotify = tk.Spotify(token=token, sender=sender, max_limits_on=True)
