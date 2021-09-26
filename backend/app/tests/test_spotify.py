@@ -42,6 +42,7 @@ async def test_get_display_name(tekore_client):
 
 
 @pytest.mark.asyncio
+@pytest.mark.currently_playing
 async def test_get_currently_playing(tekore_client):
     currently_playing = await get_currently_playing(tekore_client)
     await tekore_client.sender.close()
@@ -49,6 +50,7 @@ async def test_get_currently_playing(tekore_client):
     assert type(currently_playing) is dict
     assert type(currently_playing["current_song"]) is str
     assert type(currently_playing["current_artist"]) is str
+    assert type(currently_playing["current_image"]) is str
 
 
 def test_elapsed_time_helper_min():
@@ -101,6 +103,7 @@ async def test_get_last_played(tekore_client):
     assert type(last_played) is dict
     assert type(last_played["last_song"]) is str
     assert type(last_played["last_artist"]) is str
+    assert type(last_played["last_image"]) is str
     assert type(last_played["elapsed_time"]) is int
     assert type(last_played["time_units"]) is str
 
