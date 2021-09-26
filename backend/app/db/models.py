@@ -83,13 +83,15 @@ class UserOverview(BaseModel):
     display_name: str
     current_song: Optional[str]
     current_artist: Optional[str]
+    current_image: Optional[str]
     last_song: str
     last_artist: str
+    last_image: str
     elapsed_time: int
     time_units: str
 
 
 class PlaylistOverview(BaseModel):
-    playlist_id = str
-    playlist_name = str
-    playlist_cover_image = str
+    playlist_id: str
+    playlist_name: str
+    playlist_cover_image: str

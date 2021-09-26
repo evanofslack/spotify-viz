@@ -12,13 +12,16 @@ function LoginButton() {
 
     return (
         <Button
+            bg="#1db954"
+            color="white"
+            borderRadius="80px"
             margin={16}
             maxWidth={80}
             fontWeight="600"
-            fontSize="22"
+            fontSize="16"
             onClick={() => getRedirect()}
         >
-            Log In with Spotify
+            CONNECT WITH SPOTIFY
         </Button>
     );
 }

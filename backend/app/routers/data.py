@@ -46,7 +46,7 @@ async def get_overview(request: Request):
         return RedirectResponse(url='/login')
 
     if token.is_expiring:
-        token = await cred.refresh(token)
+        token = cred.refresh(token)
         cache.users[user] = token
 
     try:
@@ -59,8 +59,10 @@ async def get_overview(request: Request):
                 display_name=display_name,
                 current_song=current["current_song"],
                 current_artist=current["current_artist"],
+                current_image=current["current_image"],
                 last_song=last["last_song"],
                 last_artist=last["last_artist"],
+                last_image=last["last_image"],
                 elapsed_time=last["elapsed_time"],
                 time_units=last["time_units"]
             )
@@ -88,7 +90,7 @@ async def get_playlists(request: Request, bg_tasks: BackgroundTasks):
     try:
         with spotify.token_as(token):
             spotify_id = await get_spotify_id(spotify)
-            playlist_ids = await get_playlist_ids(spotify, spotify_id, limit=3)
+            playlist_ids = await get_playlist_ids(spotify, spotify_id, limit=10)
             current_user = await read_user(spotify_id=spotify_id)
 
             playlists, playlists_db = [], []
@@ -116,8 +118,8 @@ async def get_playlists(request: Request, bg_tasks: BackgroundTasks):
         print(str(err))
         return {"error": "Could not fetch info"}
 
-    bg_tasks.add_task(create_db_playlists, playlists_db)
-    bg_tasks.add_task(create_db_songs, token, playlists_db)
+    # bg_tasks.add_task(create_db_playlists, playlists_db)
+    # bg_tasks.add_task(create_db_songs, token, playlists_db)
     return playlists
 
 
@@ -125,6 +127,7 @@ async def create_db_playlists(playlists: List[PlaylistCreate]):
     for playlist in playlists:
         db_playlist = await create_playlist(playlist)
         print("Created playlist: ", db_playlist.playlist_name)
+    return {"message": "created playlists"}
 
 
 async def create_db_songs(token, playlists: List[PlaylistCreate]):
@@ -140,3 +143,5 @@ async def create_db_songs(token, playlists: List[PlaylistCreate]):
                                       playlist=playlist)
                 db_song = await create_song(new_song)
                 print("Created song: ", db_song.song_name)
+    # await spotify.sender.close()
+    return {"message": "created songs"}

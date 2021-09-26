@@ -46,3 +46,4 @@ typings/
 *.cfg
 backend/app/tekore.cfg
 backend/app/database.db
+frontend/node_modules/.cache/.eslintcache

@@ -1,14 +1,13 @@
 import React from "react";
 import {
     useColorModeValue,
+    Image,
     Box,
     Stat,
     StatLabel,
     StatNumber,
     StatHelpText,
 } from "@chakra-ui/react";
-
-// Spotracks
 
 function LastListening(props) {
     const containerbg = useColorModeValue("#ededed", "#302f32");
@@ -19,6 +18,10 @@ function LastListening(props) {
                 <StatLabel>
                     {props.elapsedTime} {props.timeUnits} ago{" "}
                 </StatLabel>
+                <Box p="3">
+                    <Image boxSize="200px" src={props.last_image} alt="Album Cover" />
+                </Box>
+
                 <StatNumber>{props.song}</StatNumber>
                 <StatHelpText>by {props.artist}</StatHelpText>
             </Stat>
