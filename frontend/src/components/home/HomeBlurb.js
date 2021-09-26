@@ -11,7 +11,7 @@ function LoginBlurb(props) {
         <Box>
             <Box width="100%" mt="12" mb="10" textAlign="center">
                 <Heading fontWeight="900" color={header} fontSize="52px">
-                    Welcome to <br /> SpotViz
+                    Welcome to <br /> Mixtake
                 </Heading>
             </Box>
 

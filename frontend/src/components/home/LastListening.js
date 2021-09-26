@@ -1,6 +1,7 @@
 import React from "react";
 import {
     useColorModeValue,
+    Image,
     Box,
     Stat,
     StatLabel,
@@ -17,6 +18,8 @@ function LastListening(props) {
                 <StatLabel>
                     {props.elapsedTime} {props.timeUnits} ago{" "}
                 </StatLabel>
+                <Image boxSize="200px" src={props.last_image} alt="Album Cover" />
+
                 <StatNumber>{props.song}</StatNumber>
                 <StatHelpText>by {props.artist}</StatHelpText>
             </Stat>

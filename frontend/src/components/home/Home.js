@@ -5,9 +5,10 @@ import NavBar from "../common/NavBar";
 import HomeBlurb from "./HomeBlurb";
 import CurrentlyListening from "./CurrentlyListening";
 import LastListening from "./LastListening";
+import PlaylistGallery from "./PlaylistGallery";
 
 function Home() {
-    const { isLoading, error, data } = useQuery("repoData", () =>
+    const { isLoading, error, data } = useQuery("overview", () =>
         fetch("/overview").then((res) => res.json())
     );
 
@@ -21,17 +22,23 @@ function Home() {
             <Box m="10">
                 <HomeBlurb name={data.display_name} />
                 {data.current_song && (
-                    <CurrentlyListening song={data.current_song} artist={data.current_artist} />
+                    <CurrentlyListening
+                        song={data.current_song}
+                        artist={data.current_artist}
+                        current_image={data.current_image}
+                    />
                 )}
                 {!data.current_song && (
                     <LastListening
                         song={data.last_song}
                         artist={data.last_artist}
+                        last_image={data.last_image}
                         elapsedTime={data.elapsed_time}
                         timeUnits={data.time_units}
                     />
                 )}
             </Box>
+            <PlaylistGallery />
         </Flex>
     );
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import {
     useColorModeValue,
+    Image,
     Box,
     Stat,
     StatLabel,
@@ -16,7 +17,11 @@ function CurrentlyListening(props) {
     return (
         <Box mt="8" p="4" width="100%" bg={containerbg} borderRadius="8">
             <Stat color={subheader}>
-                <StatLabel fontSize="18">Currently listening to</StatLabel>
+                <StatLabel fontSize="18">Currently listening to: </StatLabel>
+                <Box p="3">
+                    <Image boxSize="180px" src={props.current_image} alt="Album Cover" />
+                </Box>
+
                 <StatNumber fontSize="32">{props.song}</StatNumber>
                 <StatHelpText>by {props.artist}</StatHelpText>
             </Stat>
