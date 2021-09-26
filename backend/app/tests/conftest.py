@@ -3,3 +3,6 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "currently_playing"
     )
+    config.addinivalue_line(
+        "markers", "client"
+    )

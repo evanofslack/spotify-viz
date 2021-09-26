@@ -18,6 +18,7 @@ from app.helpers.spotify import (
 
 
 @pytest.fixture
+@pytest.mark.client
 def tekore_client() -> tk.Spotify:
     load_dotenv()
 
@@ -33,6 +34,7 @@ def tekore_client() -> tk.Spotify:
 
 
 @pytest.mark.asyncio
+@pytest.mark.client
 async def test_get_spotify_id(tekore_client):
     spotify_id = await get_spotify_id(tekore_client)
     await tekore_client.sender.close()
@@ -40,6 +42,7 @@ async def test_get_spotify_id(tekore_client):
 
 
 @pytest.mark.asyncio
+@pytest.mark.client
 async def test_get_display_name(tekore_client):
     display_name = await get_display_name(tekore_client)
     await tekore_client.sender.close()
@@ -47,6 +50,7 @@ async def test_get_display_name(tekore_client):
 
 
 @pytest.mark.asyncio
+@pytest.mark.client
 @pytest.mark.currently_playing
 async def test_get_currently_playing(tekore_client):
     currently_playing = await get_currently_playing(tekore_client)
@@ -101,6 +105,7 @@ def test_elapsed_time_helper_days():
 
 
 @pytest.mark.asyncio
+@pytest.mark.client
 async def test_get_last_played(tekore_client):
     last_played = await get_last_played(tekore_client)
     await tekore_client.sender.close()
@@ -114,6 +119,7 @@ async def test_get_last_played(tekore_client):
 
 
 @pytest.mark.asyncio
+@pytest.mark.client
 async def test_get_playlist_ids(tekore_client):
     playlist_ids = await get_playlist_ids(tekore_client, user_id="evan_slack")
     await tekore_client.sender.close()
@@ -123,6 +129,7 @@ async def test_get_playlist_ids(tekore_client):
 
 
 @pytest.mark.asyncio
+@pytest.mark.client
 async def test_get_playlist_name(tekore_client):
     playlist_name = await get_playlist_name(tekore_client, playlist_id="19LLssurgVr73eZz5kj2Ks")
     await tekore_client.sender.close()
@@ -132,6 +139,7 @@ async def test_get_playlist_name(tekore_client):
 
 
 @pytest.mark.asyncio
+@pytest.mark.client
 async def test_get_playlist_cover_images(tekore_client):
     urls = await get_playlist_cover_images(tekore_client, playlist_id="19LLssurgVr73eZz5kj2Ks")
     await tekore_client.sender.close()
@@ -141,6 +149,7 @@ async def test_get_playlist_cover_images(tekore_client):
 
 
 @pytest.mark.asyncio
+@pytest.mark.client
 async def test_get_playlist_cover_image(tekore_client):
     url = await get_playlist_cover_image(tekore_client, playlist_id="19LLssurgVr73eZz5kj2Ks")
     await tekore_client.sender.close()
@@ -150,6 +159,7 @@ async def test_get_playlist_cover_image(tekore_client):
 
 
 @pytest.mark.asyncio
+@pytest.mark.client
 async def test_get_playlist_songs(tekore_client):
     song_names, song_ids, artists = await get_playlist_songs(tekore_client, playlist_id="19LLssurgVr73eZz5kj2Ks")
     await tekore_client.sender.close()

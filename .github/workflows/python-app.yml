@@ -40,4 +40,4 @@ jobs:
                   SPOTIFY_REDIRECT_URI: ${{ secrets.SPOTIFY_REDIRECT_URI }}
                   SPOTIFY_USER_REFRESH: ${{ secrets.SPOTIFY_USER_REFRESH }}
               run: |
-                  pytest -v -m "not currently_playing"
+                  pytest -v -m "not client"
