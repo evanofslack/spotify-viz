@@ -18,7 +18,9 @@ function LastListening(props) {
                 <StatLabel>
                     {props.elapsedTime} {props.timeUnits} ago{" "}
                 </StatLabel>
-                <Image boxSize="200px" src={props.last_image} alt="Album Cover" />
+                <Box p="3">
+                    <Image boxSize="200px" src={props.last_image} alt="Album Cover" />
+                </Box>
 
                 <StatNumber>{props.song}</StatNumber>
                 <StatHelpText>by {props.artist}</StatHelpText>

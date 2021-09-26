@@ -11,7 +11,7 @@ function PlaylistCard(props) {
                 <Box m="3">
                     <Image boxSize="300px" src={props.playlist_cover_image} alt="Album Cover" />
                 </Box>
-                <Text color="white" fontSize="md" isTruncated>
+                <Text color={subheader} fontSize="md" isTruncated>
                     {props.playlist_name}
                 </Text>
             </Box>

@@ -10,13 +10,16 @@ function LoginBlurb(props) {
     return (
         <Box>
             <Box width="100%" mt="12" mb="10" textAlign="center">
-                <Heading fontWeight="900" color={header} fontSize="52px">
-                    Welcome to <br /> Mixtake
+                <Heading fontWeight="200" color={header} fontSize="36px">
+                    Welcome to
+                </Heading>
+                <Heading fontWeight="600" color={header} fontSize="70px">
+                    Mixtake
                 </Heading>
             </Box>
 
             <Box mt="20" mb="16" width="100%">
-                <Heading align="left" m="6" color={subheader} fontWeight="400" fontSize="20px">
+                <Heading align="left" m="6" color={subheader} fontWeight="300" fontSize="20px">
                     Hi {props.name} <br />
                     Let's check out your <br />
                     playback history
