@@ -18,6 +18,7 @@ from helpers.crud import (
     create_song,
     read_user,
     read_playlist,
+    read_playlist_songs,
     update_user,
     read_playlists)
 
@@ -128,7 +129,7 @@ async def get_playlists(request: Request, bg_tasks: BackgroundTasks):
         return {"error": "Could not fetch info"}
 
     bg_tasks.add_task(create_db_playlists, playlists_db)
-    # bg_tasks.add_task(create_db_songs, token, playlists_db)
+    bg_tasks.add_task(create_db_songs, token, playlists_db)
     return playlists
 
 
@@ -155,13 +156,16 @@ async def create_db_songs(token, playlists: List[PlaylistCreate]):
         for playlist in playlists:
             song_names, song_ids, artists = await get_playlist_songs(spotify, playlist.playlist_id)
 
+            playlist_song_ids = [song.song_id for song in await read_playlist_songs(playlist.playlist_id)]
+
             for song_name, song_id, artist in zip(song_names, song_ids, artists):
-                new_song = SongCreate(song_id=song_id,
-                                      song_name=song_name,
-                                      artist=artist,
-                                      playlist_id=playlist.id,
-                                      playlist=playlist)
-                db_song = await create_song(new_song)
-                print("Created song: ", db_song.song_name)
+                if song_id not in playlist_song_ids:
+                    new_song = SongCreate(song_id=song_id,
+                                          song_name=song_name,
+                                          artist=artist,
+                                          playlist_id=playlist.playlist_id,
+                                          playlist=playlist)
+                    db_song = await create_song(new_song)
+                    print("Created song: ", db_song.song_name)
     # await spotify.sender.close()
     return {"message": "created songs"}

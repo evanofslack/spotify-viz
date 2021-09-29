@@ -1,5 +1,7 @@
 import asyncio
 import tekore as tk
+from dotenv import load_dotenv
+
 
 from helpers.spotify import get_spotify_id, get_playlist_songs, get_playlist_ids, get_playlist_name, get_playlist_cover_image
 from helpers.tekore_setup import spotify
@@ -40,8 +42,8 @@ from db.database import engine
 
 
 async def main():
-    file = 'tekore.cfg'
-    conf = tk.config_from_file(file, return_refresh=True)
+    load_dotenv()
+    conf = tk.config_from_environment(return_refresh=True)
     token = tk.refresh_user_token(*conf[:2], conf[3])
 
     sender = tk.RetryingSender(sender=tk.AsyncSender())
@@ -50,17 +52,15 @@ async def main():
     with spotify.token_as(token):
 
         spotify_id = await get_spotify_id(spotify)
-        playlist_ids = await get_playlist_ids(spotify, spotify_id, limit=10)
+        playlist_ids = await get_playlist_ids(spotify, spotify_id, limit=2)
 
         for id in playlist_ids:
             playlist_name = await get_playlist_name(spotify, id)
-            songs, song_ids, artists = await get_playlist_songs(spotify, id)
-            url = await get_playlist_cover_image(spotify, id)
-            print("\n")
             print("Playlist: ", playlist_name)
-            print(url)
 
-            for song, song_id, artist in zip(songs, song_ids, artists):
+            song_names, song_ids, artists = await get_playlist_songs(spotify=spotify, playlist_id=id)
+
+            for song, song_id, artist in zip(song_names, song_ids, artists):
                 print(song, "by: ", artist)
                 print(song_id)
 

@@ -42,7 +42,7 @@ async def get_currently_playing(spotify: tk.Spotify) -> Dict:
 
 def elapsed_time_helper(elapsed_minutes: int) -> Tuple[int, str]:
     """
-    Convert minutes to lowest time denomination 
+    Convert minutes to lowest time denomination
 
     """
     if elapsed_minutes < 2:
@@ -144,12 +144,16 @@ async def get_playlist_songs(spotify: tk.Spotify, playlist_id: str) -> tuple[Lis
     Get all songs from a playlist
 
     """
-    playlist_paging = await spotify.playlist_items(
-        playlist_id, as_tracks=False, limit=100)
+    playlist_paging = await (spotify.playlist_items(
+        playlist_id, as_tracks=False, limit=100))
 
-    playlist_items = playlist_paging.items
+    playlist_generator = [spotify.all_items(playlist_paging)]
 
-    song_names = [item.track.name for item in playlist_items]
-    song_ids = [item.track.id for item in playlist_items]
-    artists = [item.track.artists[0].name for item in playlist_items]
+    for playlist in playlist_generator:
+        items = [item async for item in playlist]
+
+        song_names = [item.track.name for item in items]
+        song_ids = [item.track.id for item in items]
+        artists = [item.track.artists[0].name for item in items]
+
     return song_names, song_ids, artists
