@@ -196,6 +196,7 @@ async def read_playlist_songs(playlist_id: str) -> List[SongRead]:
         query = await session.execute(select(Song).where(Song.playlist_id == playlist_id))
         songs = [song for song, in query.all()]
         if not songs:
-            raise HTTPException(
-                status_code=404, detail="Playlist has no songs")
+            # raise HTTPException(
+            #     status_code=404, detail="Playlist has no songs")
+            return []
         return songs

@@ -12,8 +12,16 @@ router = APIRouter(
 )
 
 
-@router.post("/users/", response_model=UserRead)
-async def create_user(*, session: AsyncSession = Depends(get_session), user: UserCreate):
+# @router.post("/users/", response_model=UserRead)
+# async def create_user(*, user: UserCreate, session: AsyncSession = Depends(get_session)):
+#     db_user = User.from_orm(user)
+#     session.add(db_user)
+#     await session.commit()
+#     await session.refresh(db_user)
+#     return db_user
+
+@router.post("/users/", response_model=User)
+async def create_user(*, user: UserCreate, session: AsyncSession = Depends(get_session)):
     db_user = User.from_orm(user)
     session.add(db_user)
     await session.commit()
@@ -29,7 +37,7 @@ async def read_users(*, session: AsyncSession = Depends(get_session)):
     return users
 
 
-@router.get("/users/{spotify_id}", response_model=UserRead)
+@router.get("/users/{spotify_id}", response_model=User)
 async def read_user(*, session: AsyncSession = Depends(get_session), spotify_id: str):
     user = await session.exec(select(User).where(User.spotify_id == spotify_id))
     if not user:
@@ -37,21 +45,21 @@ async def read_user(*, session: AsyncSession = Depends(get_session), spotify_id:
     return user.one()
 
 
-@ router.patch("/users/{spotify_id}", response_model=UserRead)
-async def update_user(*, session: AsyncSession = Depends(get_session), spotify_id: str, user: UserUpdate):
-    db_user = await session.get(User, spotify_id)
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    user_data = user.dict(exclude_unset=True)
-    for key, value in user_data.items():
-        setattr(db_user, key, value)
-    session.add(db_user)
-    await session.commit()
-    await session.refresh(db_user)
-    return db_user
+# @router.patch("/users/{spotify_id}", response_model=User)
+# async def update_user(*, session: AsyncSession = Depends(get_session), spotify_id: str, user: UserUpdate):
+#     db_user = await session.get(User, spotify_id)
+#     if not db_user:
+#         raise HTTPException(status_code=404, detail="User not found")
+#     user_data = user.dict(exclude_unset=True)
+#     for key, value in user_data.items():
+#         setattr(db_user, key, value)
+#     session.add(db_user)
+#     await session.commit()
+#     await session.refresh(db_user)
+#     return db_user
 
 
-@ router.delete("/users/{spotify_id}", response_model=UserRead)
+@router.delete("/users/{spotify_id}", response_model=User)
 async def delete_user(*, session: AsyncSession = Depends(get_session), spotify_id: str):
     user = await session.exec(select(User).where(User.spotify_id == spotify_id))
 

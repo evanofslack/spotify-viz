@@ -4,7 +4,7 @@ import tekore as tk
 
 from helpers.tekore_setup import spotify, cred, scope
 from helpers.spotify import get_spotify_id
-from helpers.crud import create_user, read_user
+from db.crud import create_user, read_user
 from db.models import UserCreate, Login, RedirectURL
 from cache import cache
 
@@ -51,7 +51,6 @@ async def login_callback(request: Request, code: str, state: str) -> RedirectRes
 
     """
     auth = cache.auths.pop(state, None)
-    print("state: ", state)
     if auth is None:
         return 'Invalid state!', 400
 
