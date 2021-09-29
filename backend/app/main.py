@@ -2,27 +2,29 @@ import uvicorn
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
+from dotenv import load_dotenv
+import os
 
-from routers import users, auth, data
+from routers import users, auth, status, overview, playlists
 from db.database import init_db
-from config import get_settings, Settings
 
 
 app = FastAPI()
 app.include_router(users.router)
 app.include_router(auth.router)
-app.include_router(data.router)
+app.include_router(status.router)
+app.include_router(overview.router)
+app.include_router(playlists.router)
 
-app.add_middleware(SessionMiddleware, secret_key="yeahyouthought")
+load_dotenv()
+
+app.add_middleware(SessionMiddleware,
+                   secret_key=os.environ["SESSION_KEY"])
 
 
-origins = [
-    'http://localhost',
-    'localhost'
-]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=['http://localhost', 'localhost'],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
@@ -33,19 +35,6 @@ app.add_middleware(
 async def on_startup():
     await init_db()
 
-
-@app.get("/")
-async def pong(settings: Settings = Depends(get_settings)):
-    return {
-        "message": "Hello World",
-        "environment": settings.environment,
-        "testing": settings.testing
-    }
-
-
-@app.get("/react")
-async def test_react():
-    return {"message": "hello"}
 
 if __name__ == "__main__":
     uvicorn.run(
