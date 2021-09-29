@@ -4,80 +4,30 @@ import tekore as tk
 from typing import List
 
 from helpers.spotify import (
-    get_display_name,
-    get_currently_playing,
-    get_last_played,
     get_spotify_id,
     get_playlist_ids,
     get_playlist_name,
     get_playlist_cover_image,
     get_playlist_songs)
 
-from helpers.crud import (
+from db.crud import (
     create_playlist,
     create_song,
     read_user,
     read_playlist,
-    read_playlist_songs,
-    update_user,
-    read_playlists)
+    read_playlist_songs)
 
 from db.models import (
-    UserOverview,
-    UserUpdate,
     PlaylistCreate,
     PlaylistOverview,
-    SongCreate,
-    PlaylistRead)
+    SongCreate)
 
 from helpers.tekore_setup import spotify, cred
 from cache import cache
 
 router = APIRouter(
-    tags=["data"],
+    tags=["playlists"],
 )
-
-
-@router.get("/overview", response_model=UserOverview)
-async def get_overview(request: Request):
-    """
-    Return overview of user's listening history
-
-    """
-    user = request.session.get('user', None)
-    token = cache.users.get(user, None)
-
-    if user is None or token is None:
-        request.session.pop('user', None)
-        return RedirectResponse(url='/login')
-
-    if token.is_expiring:
-        token = cred.refresh(token)
-        cache.users[user] = token
-
-    try:
-        with spotify.token_as(token):
-            display_name = await get_display_name(spotify)
-            current = await get_currently_playing(spotify)
-            last = await get_last_played(spotify)
-
-            user_overview = UserOverview(
-                display_name=display_name,
-                current_song=current["current_song"],
-                current_artist=current["current_artist"],
-                current_image=current["current_image"],
-                last_song=last["last_song"],
-                last_artist=last["last_artist"],
-                last_image=last["last_image"],
-                elapsed_time=last["elapsed_time"],
-                time_units=last["time_units"]
-            )
-
-    except tk.HTTPError as err:
-        print(str(err))
-        return {"error": "Could not fetch info"}
-
-    return user_overview
 
 
 @router.get("/playlists", response_model=List[PlaylistOverview])
@@ -100,7 +50,7 @@ async def get_playlists(request: Request, bg_tasks: BackgroundTasks):
     try:
         with spotify.token_as(token):
             spotify_id = await get_spotify_id(spotify)
-            playlist_ids = await get_playlist_ids(spotify, spotify_id, limit=10)
+            playlist_ids = await get_playlist_ids(spotify, spotify_id, limit=15)
             current_user = await read_user(spotify_id=spotify_id)
 
             playlists, playlists_db = [], []
@@ -167,5 +117,4 @@ async def create_db_songs(token, playlists: List[PlaylistCreate]):
                                           playlist=playlist)
                     db_song = await create_song(new_song)
                     print("Created song: ", db_song.song_name)
-    # await spotify.sender.close()
     return {"message": "created songs"}
