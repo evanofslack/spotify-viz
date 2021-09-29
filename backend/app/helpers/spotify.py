@@ -145,7 +145,7 @@ async def get_playlist_songs(spotify: tk.Spotify, playlist_id: str) -> tuple[Lis
 
     """
     playlist_paging = await (spotify.playlist_items(
-        playlist_id, as_tracks=False, limit=100))
+        playlist_id, as_tracks=False))
 
     playlist_generator = [spotify.all_items(playlist_paging)]
 
