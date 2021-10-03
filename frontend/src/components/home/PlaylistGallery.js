@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery } from "react-query";
-import { Flex, Box, Text } from "@chakra-ui/react";
+import { Flex, Box, CircularProgress, Heading } from "@chakra-ui/react";
 import PlaylistCard from "./PlaylistCard";
 
 function PlaylistGallery() {
@@ -8,16 +8,26 @@ function PlaylistGallery() {
         fetch("/playlists").then((res) => res.json())
     );
 
-    if (isLoading) return "Loading...";
+    if (isLoading) return <CircularProgress isIndeterminate color="green.300" />;
 
     if (error) return "An error has occurred: " + error.message;
 
     return (
         <Flex align="center" justify="center" direction="column">
             <Box>
-                <Text fontSize="lg" isTruncated>
-                    Your Playlists:
-                </Text>
+                <Heading
+                    display="inline-block"
+                    align="left"
+                    mt="20"
+                    ml="2"
+                    color="#D2D2D2"
+                    fontWeight="300"
+                    fontSize="22px"
+                    borderBottom="1px solid #D2D2D2"
+                    paddingBottom="2px"
+                >
+                    Your mixes
+                </Heading>
 
                 {data.map((playlist, index) => {
                     return (
