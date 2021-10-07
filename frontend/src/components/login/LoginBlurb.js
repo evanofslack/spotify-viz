@@ -1,11 +1,9 @@
 import React from "react";
 import { useColorModeValue, Box, Heading } from "@chakra-ui/react";
 
-// Spotracks
-
 function LoginBlurb() {
-    const header = useColorModeValue("gray.700", "green.400");
-    const subheader = useColorModeValue("teal.600", "#abb2bf");
+    const header = useColorModeValue("gray.700", "#FDD855");
+    const subheader = useColorModeValue("teal.600", "#D2D2D2");
     return (
         <Box mt="55" mb="10" textAlign="center">
             <Heading fontWeight="200" color={header} fontSize="40px">

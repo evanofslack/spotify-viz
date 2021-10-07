@@ -8,9 +8,9 @@ function PlaylistCard(props) {
     return (
         <Flex align="center" justify="center" direction="column">
             <Box m="4" p="4" width="100%" bg={containerbg} borderRadius="8">
-                <Box m="3">
+                <Flex m="3" align="center" justify="center">
                     <Image boxSize="300px" src={props.playlist_cover_image} alt="Album Cover" />
-                </Box>
+                </Flex>
                 <Text color={subheader} fontSize="md" isTruncated>
                     {props.playlist_name}
                 </Text>

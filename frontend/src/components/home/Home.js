@@ -19,7 +19,7 @@ function Home() {
     return (
         <Flex align="center" justify="center" direction="column">
             <NavBar />
-            <Box m="10">
+            <Box mt="10">
                 <HomeBlurb name={data.display_name} />
                 {data.current_song && (
                     <CurrentlyListening

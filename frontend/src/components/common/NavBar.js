@@ -1,12 +1,25 @@
 import React from "react";
-import { Box } from "@chakra-ui/react";
+import { HStack, Box } from "@chakra-ui/react";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
+import { Icon } from "@chakra-ui/react";
+import { RiNeteaseCloudMusicLine } from "react-icons/ri";
 
 function NavBar() {
     return (
-        <Box width="100%" textAlign="right">
+        <HStack
+            px="2"
+            pt="1"
+            background=""
+            width="100%"
+            flexDirection="row"
+            justify="space-between"
+        >
+            <Box fontWeight="600">
+                <Icon as={RiNeteaseCloudMusicLine} w={6} h={6} />
+                &nbsp;mixtake
+            </Box>
             <ColorModeSwitcher />
-        </Box>
+        </HStack>
     );
 }
 
