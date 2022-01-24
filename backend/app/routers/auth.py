@@ -10,7 +10,6 @@ router = APIRouter(
     tags=["auth"],
 )
 
-
 @router.get("/is_logged_in", response_model=Login)
 async def is_logged_in(request: Request):
     """

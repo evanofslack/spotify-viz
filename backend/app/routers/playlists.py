@@ -2,7 +2,6 @@ from typing import List
 
 import tekore as tk
 from cache import cache
-from db.crud import read_user
 from db.models import PlaylistOverview
 from fastapi import APIRouter, BackgroundTasks, Request
 from fastapi.responses import RedirectResponse
