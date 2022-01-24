@@ -37,7 +37,12 @@ async def login(request: Request):
 
     auth = tk.UserAuth(cred, scope)
     cache.auths[auth.state] = auth
+    print("State:")
     print(auth.state)
+    print("Cache:")
+    print(cache.auths)
+    print("Cache State:")
+    print(cache.auths.pop(auth.state, None))
 
     return {"url": auth.url}
 
