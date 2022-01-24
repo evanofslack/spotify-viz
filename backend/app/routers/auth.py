@@ -53,6 +53,11 @@ async def login_callback(request: Request, code: str, state: str) -> RedirectRes
     Create user and return redirect url to home page
 
     """
+    
+    print("Cache After:")
+    print(cache.auths)
+    print("URL State")
+    print(state)
     auth = cache.auths.pop(state, None)
     if auth is None:
         return 'Invalid state!', 400
