@@ -1,16 +1,14 @@
-import uvicorn
-from fastapi import FastAPI, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
-from dotenv import load_dotenv
 import os
 
-from routers import users, auth, status, overview, playlists
-from db.database import init_db
+import uvicorn
+from dotenv import load_dotenv
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 
+from routers import auth, overview, playlists, status
 
 app = FastAPI()
-app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(status.router)
 app.include_router(overview.router)
@@ -30,10 +28,6 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-
-@app.on_event("startup")
-async def on_startup():
-    await init_db()
 
 
 if __name__ == "__main__":

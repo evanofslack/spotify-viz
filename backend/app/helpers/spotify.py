@@ -98,6 +98,14 @@ async def get_last_played(spotify: tk.Spotify) -> Dict:
             "time_units": time_units}
 
 
+async def get_recent_genres(spotify: tk.Spotify, time_range: str = "short_term", num_artists: int = 20) -> List[str]:
+    artists = await spotify.current_user_top_artists(time_range=time_range, limit=num_artists)
+
+    genres = [genre for item in artists.items for genre in item.genres]
+
+    return genres
+
+
 async def get_playlist_ids(spotify: tk.Spotify, user_id: str, limit: int = 3) -> List[str]:
     """
     Get list of user's playlist IDs

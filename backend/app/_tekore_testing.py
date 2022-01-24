@@ -3,7 +3,7 @@ import tekore as tk
 from dotenv import load_dotenv
 
 
-from helpers.spotify import get_spotify_id, get_playlist_songs, get_playlist_ids, get_playlist_name, get_playlist_cover_image
+from helpers.spotify import get_spotify_id, get_playlist_songs, get_playlist_ids, get_playlist_name, get_playlist_cover_image, get_recent_genres
 from helpers.tekore_setup import spotify
 from db.models import PlaylistCreate, Playlist, UserCreate, User, Song
 from db.database import engine
@@ -51,20 +51,28 @@ async def main():
 
     with spotify.token_as(token):
 
-        spotify_id = await get_spotify_id(spotify)
-        playlist_ids = await get_playlist_ids(spotify, spotify_id, limit=2)
+        genres = await get_recent_genres(spotify, num_artists=50)
+        print(len(genres))
+        for genre in genres:
+            print(genre)
 
-        for id in playlist_ids:
-            playlist_name = await get_playlist_name(spotify, id)
-            print("Playlist: ", playlist_name)
+        # spotify_id = await get_spotify_id(spotify)
+        # playlist_ids = await get_playlist_ids(spotify, spotify_id, limit=2)
 
-            song_names, song_ids, artists = await get_playlist_songs(spotify=spotify, playlist_id=id)
+        # for id in playlist_ids:
+        #     playlist_name = await get_playlist_name(spotify, id)
+        #     print("Playlist: ", playlist_name)
 
-            for song, song_id, artist in zip(song_names, song_ids, artists):
-                print(song, "by: ", artist)
-                print(song_id)
+        #     song_names, song_ids, artists = await get_playlist_songs(spotify=spotify, playlist_id=id)
 
-    # await sender.close()
+        #     for song, song_id, artist in zip(song_names, song_ids, artists):
+        #         print(song, "by: ", artist)
+        #         print(song_id)
+
+    await sender.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
+# https://github.com/python-poetry/poetry/issues/536
