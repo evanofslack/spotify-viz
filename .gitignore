@@ -5,6 +5,7 @@ env
 tekore.cfg
 .env
 *.sqlite3
+.pytest*
 
 
 # React
