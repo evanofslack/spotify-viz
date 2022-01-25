@@ -10,17 +10,18 @@ router = APIRouter(
     tags=["auth"],
 )
 
+
 @router.get("/is_logged_in", response_model=Login)
 async def is_logged_in(request: Request):
     """
     Index cache to determine is user is logged in
 
     """
-    user = request.session.get('user', None)
+    user = request.session.get("user", None)
     token = cache.users.get(user, None)
 
     if user is None or token is None:
-        request.session.pop('user', None)
+        request.session.pop("user", None)
         return {"is_logged_in": False, "message": "Not logged in"}
     else:
         return {"is_logged_in": True, "message": "Sucessfully logged in"}
@@ -29,11 +30,11 @@ async def is_logged_in(request: Request):
 @router.get("/login", response_model=RedirectURL)
 async def login(request: Request):
     """
-    Return spotify login url 
+    Return spotify login url
 
     """
-    if 'user' in request.session:
-        return RedirectResponse(url='/overview')
+    if "user" in request.session:
+        return RedirectResponse(url="/overview")
 
     auth = tk.UserAuth(cred, scope)
     # TODO add redis or other key/value store to work with multiple gunicorn workers on heroku
@@ -48,29 +49,29 @@ async def login_callback(request: Request, code: str, state: str) -> RedirectRes
     Create user and return redirect url to home page
 
     """
-    
+
     auth = cache.auths.pop(state, None)
     if auth is None:
-        return 'Invalid state!', 400
+        return "Invalid state!", 400
 
     token = auth.request_token(code, state)
 
-    request.session['user'] = state
+    request.session["user"] = state
     cache.users[state] = token
 
     with spotify.token_as(token):
         spotify_id = await get_spotify_id(spotify)
 
-    return RedirectResponse('http://localhost:3000/')
+    return RedirectResponse("http://localhost:3000/")
 
 
-@ router.get("/logout")
+@router.get("/logout")
 def logout(request: Request) -> RedirectResponse:
     """
-    Remove user from cache 
+    Remove user from cache
 
     """
-    uid = request.session.pop('user', None)
+    uid = request.session.pop("user", None)
     if uid is not None:
         cache.users.pop(uid, None)
-    return RedirectResponse('/login')
+    return RedirectResponse("/login")

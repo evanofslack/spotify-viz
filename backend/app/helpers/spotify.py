@@ -1,7 +1,8 @@
-import tekore as tk
 import datetime
-import iso8601
 from typing import Dict, List, Tuple
+
+import iso8601
+import tekore as tk
 
 
 async def get_spotify_id(spotify: tk.Spotify) -> str:
@@ -37,7 +38,11 @@ async def get_currently_playing(spotify: tk.Spotify) -> Dict:
     else:
         current_song, current_artist, current_image = None, None, None
 
-    return {"current_song": current_song, "current_artist": current_artist, "current_image": current_image}
+    return {
+        "current_song": current_song,
+        "current_artist": current_artist,
+        "current_image": current_image,
+    }
 
 
 def elapsed_time_helper(elapsed_minutes: int) -> Tuple[int, str]:
@@ -53,19 +58,19 @@ def elapsed_time_helper(elapsed_minutes: int) -> Tuple[int, str]:
         elapsed_time = elapsed_minutes
         time_units = "minutes"
 
-    if elapsed_minutes >= 60 and elapsed_minutes < 2*60:
+    if elapsed_minutes >= 60 and elapsed_minutes < 2 * 60:
         elapsed_time = round(elapsed_minutes / 60)
         time_units = "hour"
 
-    if elapsed_minutes >= 2*60 and elapsed_minutes < 24*60:
+    if elapsed_minutes >= 2 * 60 and elapsed_minutes < 24 * 60:
         elapsed_time = round(elapsed_minutes / 60)
         time_units = "hours"
 
-    if elapsed_minutes >= 24*60 and elapsed_minutes < 2*24*60:
+    if elapsed_minutes >= 24 * 60 and elapsed_minutes < 2 * 24 * 60:
         elapsed_time = round(elapsed_minutes / 60 / 24)
         time_units = "day"
 
-    if elapsed_minutes >= 2*24*60:
+    if elapsed_minutes >= 2 * 24 * 60:
         elapsed_time = round(elapsed_minutes / 60 / 24)
         time_units = "days"
 
@@ -84,29 +89,38 @@ async def get_last_played(spotify: tk.Spotify) -> Dict:
 
     last_played_at = play_history_paging.items[0].played_at
 
-    now_iso8601 = datetime.datetime.fromisoformat(datetime.datetime.now().astimezone().replace(
-        microsecond=0).isoformat())
+    now_iso8601 = datetime.datetime.fromisoformat(
+        datetime.datetime.now().astimezone().replace(microsecond=0).isoformat()
+    )
     last_played_at_parsed = iso8601.parse_date(str(last_played_at))
-    elapsed_minutes = round((now_iso8601-last_played_at_parsed).seconds / 60)
+    elapsed_minutes = round((now_iso8601 - last_played_at_parsed).seconds / 60)
 
     elapsed_time, time_units = elapsed_time_helper(elapsed_minutes)
 
-    return {"last_song": last_song,
-            "last_artist": last_artist,
-            "last_image": last_image,
-            "elapsed_time": elapsed_time,
-            "time_units": time_units}
+    return {
+        "last_song": last_song,
+        "last_artist": last_artist,
+        "last_image": last_image,
+        "elapsed_time": elapsed_time,
+        "time_units": time_units,
+    }
 
 
-async def get_recent_genres(spotify: tk.Spotify, time_range: str = "short_term", num_artists: int = 20) -> List[str]:
-    artists = await spotify.current_user_top_artists(time_range=time_range, limit=num_artists)
+async def get_recent_genres(
+    spotify: tk.Spotify, time_range: str = "short_term", num_artists: int = 20
+) -> List[str]:
+    artists = await spotify.current_user_top_artists(
+        time_range=time_range, limit=num_artists
+    )
 
     genres = [genre for item in artists.items for genre in item.genres]
 
     return genres
 
 
-async def get_playlist_ids(spotify: tk.Spotify, user_id: str, limit: int = 3) -> List[str]:
+async def get_playlist_ids(
+    spotify: tk.Spotify, user_id: str, limit: int = 3
+) -> List[str]:
     """
     Get list of user's playlist IDs
 
@@ -147,13 +161,14 @@ async def get_playlist_cover_image(spotify: tk.Spotify, playlist_id: str) -> str
     return url
 
 
-async def get_playlist_songs(spotify: tk.Spotify, playlist_id: str) -> tuple[List[str], List[str], List[str]]:
+async def get_playlist_songs(
+    spotify: tk.Spotify, playlist_id: str
+) -> tuple[List[str], List[str], List[str]]:
     """
     Get all songs from a playlist
 
     """
-    playlist_paging = await (spotify.playlist_items(
-        playlist_id, as_tracks=False))
+    playlist_paging = await (spotify.playlist_items(playlist_id, as_tracks=False))
 
     playlist_generator = [spotify.all_items(playlist_paging)]
 

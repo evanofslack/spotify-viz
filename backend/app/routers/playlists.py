@@ -25,12 +25,12 @@ async def get_playlists(request: Request, bg_tasks: BackgroundTasks):
     Return a user's playlists
 
     """
-    user = request.session.get('user', None)
+    user = request.session.get("user", None)
     token = cache.users.get(user, None)
 
     if user is None or token is None:
-        request.session.pop('user', None)
-        return RedirectResponse(url='/login')
+        request.session.pop("user", None)
+        return RedirectResponse(url="/login")
 
     if token.is_expiring:
         token = await cred.refresh(token)
@@ -45,12 +45,13 @@ async def get_playlists(request: Request, bg_tasks: BackgroundTasks):
             for playlist_id in playlist_ids:
                 playlist_name = await get_playlist_name(spotify, playlist_id)
                 playlist_cover_image = await get_playlist_cover_image(
-                    spotify, playlist_id)
+                    spotify, playlist_id
+                )
 
                 new_playlist = PlaylistOverview(
                     playlist_id=playlist_id,
                     playlist_name=playlist_name,
-                    playlist_cover_image=playlist_cover_image
+                    playlist_cover_image=playlist_cover_image,
                 )
                 playlists.append(new_playlist)
 
@@ -59,4 +60,3 @@ async def get_playlists(request: Request, bg_tasks: BackgroundTasks):
         return {"error": "Could not fetch info"}
 
     return playlists
-
