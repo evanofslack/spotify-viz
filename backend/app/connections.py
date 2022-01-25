@@ -2,15 +2,17 @@ from typing import Optional
 
 import aioredis
 
+from config import get_settings
+
+settings = get_settings()
+
 
 class RedisCache:
     def __init__(self):
         self.redis_cache: Optional[aioredis.Redis] = None
 
     async def init_cache(self):
-        self.redis_cache = await aioredis.from_url(
-            "redis://localhost", encoding="utf-8"
-        )
+        self.redis_cache = await aioredis.from_url(settings.redis_url, encoding="utf-8")
 
     async def keys(self, pattern):
         return await self.redis_cache.keys(pattern)

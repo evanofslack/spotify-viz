@@ -9,17 +9,15 @@ from starlette.middleware.sessions import SessionMiddleware
 from connections import redis_cache
 from routers import auth, overview, playlists, status
 
+load_dotenv()
+
 app = FastAPI()
 app.include_router(auth.router)
 app.include_router(status.router)
 app.include_router(overview.router)
 app.include_router(playlists.router)
 
-load_dotenv()
-
 app.add_middleware(SessionMiddleware, secret_key=os.environ["SESSION_KEY"])
-
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost", "localhost"],

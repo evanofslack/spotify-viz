@@ -3,7 +3,7 @@ from connections import redis_cache
 from fastapi import APIRouter, Depends
 
 router = APIRouter(
-    tags=["playlists"],
+    tags=["status"],
 )
 
 
@@ -29,12 +29,21 @@ async def test_react():
     return {"message": "hello"}
 
 
-@router.get("/redis")
-async def test_react():
+@router.get("/redis{key}")
+async def test_redis(key: str):
     """
     Endpoint to test react
 
     """
-    await redis_cache.set("test", "hello redis!")
-    value = await redis_cache.get("test")
+    value = await redis_cache.get(key)
     return {"message": value}
+
+
+@router.put("/redis")
+async def test_redis(key: str, value: str):
+    """
+    Endpoint to test react
+
+    """
+    await redis_cache.set(key, value)
+    return {"message": f"Success, set {key}:{value}"}
