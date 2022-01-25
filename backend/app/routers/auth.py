@@ -36,13 +36,8 @@ async def login(request: Request):
         return RedirectResponse(url='/overview')
 
     auth = tk.UserAuth(cred, scope)
+    # TODO add redis or other key/value store to work with multiple gunicorn workers on heroku
     cache.auths[auth.state] = auth
-    print("State:")
-    print(auth.state)
-    print("Cache:")
-    print(cache.auths)
-    print("Cache State:")
-    print(cache.auths.pop(auth.state, None))
 
     return {"url": auth.url}
 
@@ -54,10 +49,6 @@ async def login_callback(request: Request, code: str, state: str) -> RedirectRes
 
     """
     
-    print("Cache After:")
-    print(cache.auths)
-    print("URL State")
-    print(state)
     auth = cache.auths.pop(state, None)
     if auth is None:
         return 'Invalid state!', 400
