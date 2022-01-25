@@ -1,6 +1,7 @@
-from typing import Optional, List
-from sqlmodel import SQLModel, Relationship, Field, Column, VARCHAR
+from typing import List, Optional
+
 from pydantic import BaseModel
+from sqlmodel import VARCHAR, Column, Field, Relationship, SQLModel
 
 """ Models for API responses as well as schemas for database """
 
@@ -9,8 +10,7 @@ from pydantic import BaseModel
 
 
 class UserBase(SQLModel):
-    spotify_id: str = Field(sa_column=Column(
-        "spotify_id", VARCHAR, unique=True))
+    spotify_id: str = Field(sa_column=Column("spotify_id", VARCHAR, unique=True))
     created_playlists: bool = False
 
 
@@ -109,6 +109,7 @@ class SongRead(SongBase):
 
 
 # ---------------------- AUTH ---------------------- #
+
 
 class Login(BaseModel):
     is_logged_in: bool

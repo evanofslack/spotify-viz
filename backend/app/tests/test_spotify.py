@@ -1,20 +1,20 @@
-import tekore as tk
-import pytest
-from dotenv import load_dotenv
 import os
 
+import pytest
+import tekore as tk
 from app.helpers.spotify import (
-    get_spotify_id,
-    get_display_name,
-    get_currently_playing,
     elapsed_time_helper,
+    get_currently_playing,
+    get_display_name,
     get_last_played,
-    get_playlist_ids,
-    get_playlist_name,
     get_playlist_cover_image,
     get_playlist_cover_images,
-    get_playlist_songs
+    get_playlist_ids,
+    get_playlist_name,
+    get_playlist_songs,
+    get_spotify_id,
 )
+from dotenv import load_dotenv
 
 
 @pytest.fixture
@@ -26,7 +26,8 @@ def tekore_client() -> tk.Spotify:
     secret = os.environ["SPOTIFY_CLIENT_SECRET"]
     refresh = os.environ["SPOTIFY_USER_REFRESH"]
     token = tk.refresh_user_token(
-        client_id=id, client_secret=secret, refresh_token=refresh)
+        client_id=id, client_secret=secret, refresh_token=refresh
+    )
 
     sender = tk.RetryingSender(sender=tk.AsyncSender())
     spotify = tk.Spotify(token=token, sender=sender, max_limits_on=True)
@@ -91,14 +92,14 @@ def test_elapsed_time_helper_hours():
 
 
 def test_elapsed_time_helper_day():
-    elapsed_time, time_units = elapsed_time_helper(24*60)
+    elapsed_time, time_units = elapsed_time_helper(24 * 60)
 
     assert elapsed_time == 1
     assert time_units == "day"
 
 
 def test_elapsed_time_helper_days():
-    elapsed_time, time_units = elapsed_time_helper(2*24*60)
+    elapsed_time, time_units = elapsed_time_helper(2 * 24 * 60)
 
     assert elapsed_time == 2
     assert time_units == "days"
@@ -131,7 +132,9 @@ async def test_get_playlist_ids(tekore_client):
 @pytest.mark.asyncio
 @pytest.mark.client
 async def test_get_playlist_name(tekore_client):
-    playlist_name = await get_playlist_name(tekore_client, playlist_id="19LLssurgVr73eZz5kj2Ks")
+    playlist_name = await get_playlist_name(
+        tekore_client, playlist_id="19LLssurgVr73eZz5kj2Ks"
+    )
     await tekore_client.sender.close()
 
     assert type(playlist_name) is str
@@ -141,7 +144,9 @@ async def test_get_playlist_name(tekore_client):
 @pytest.mark.asyncio
 @pytest.mark.client
 async def test_get_playlist_cover_images(tekore_client):
-    urls = await get_playlist_cover_images(tekore_client, playlist_id="19LLssurgVr73eZz5kj2Ks")
+    urls = await get_playlist_cover_images(
+        tekore_client, playlist_id="19LLssurgVr73eZz5kj2Ks"
+    )
     await tekore_client.sender.close()
 
     assert type(urls) is list
@@ -151,17 +156,24 @@ async def test_get_playlist_cover_images(tekore_client):
 @pytest.mark.asyncio
 @pytest.mark.client
 async def test_get_playlist_cover_image(tekore_client):
-    url = await get_playlist_cover_image(tekore_client, playlist_id="19LLssurgVr73eZz5kj2Ks")
+    url = await get_playlist_cover_image(
+        tekore_client, playlist_id="19LLssurgVr73eZz5kj2Ks"
+    )
     await tekore_client.sender.close()
 
     assert type(url) is str
-    assert url == "https://mosaic.scdn.co/640/ab67616d0000b2731ddeb0fc6dd26b427bdbda20ab67616d0000b2736b8cc359a209e3dce188b993ab67616d0000b27370504af55d847f60cec4cbd7ab67616d0000b273f0ec272782698baa2381926a"
+    assert (
+        url
+        == "https://mosaic.scdn.co/640/ab67616d0000b2731ddeb0fc6dd26b427bdbda20ab67616d0000b2736b8cc359a209e3dce188b993ab67616d0000b27370504af55d847f60cec4cbd7ab67616d0000b273f0ec272782698baa2381926a"
+    )
 
 
 @pytest.mark.asyncio
 @pytest.mark.client
 async def test_get_playlist_songs(tekore_client):
-    song_names, song_ids, artists = await get_playlist_songs(tekore_client, playlist_id="19LLssurgVr73eZz5kj2Ks")
+    song_names, song_ids, artists = await get_playlist_songs(
+        tekore_client, playlist_id="19LLssurgVr73eZz5kj2Ks"
+    )
     await tekore_client.sender.close()
 
     assert type(song_names) is list

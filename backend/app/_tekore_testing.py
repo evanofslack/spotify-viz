@@ -1,12 +1,19 @@
 import asyncio
+
 import tekore as tk
 from dotenv import load_dotenv
 
-
-from helpers.spotify import get_spotify_id, get_playlist_songs, get_playlist_ids, get_playlist_name, get_playlist_cover_image, get_recent_genres
-from helpers.tekore_setup import spotify
-from db.models import PlaylistCreate, Playlist, UserCreate, User, Song
 from db.database import engine
+from db.models import Playlist, PlaylistCreate, Song, User, UserCreate
+from helpers.spotify import (
+    get_playlist_cover_image,
+    get_playlist_ids,
+    get_playlist_name,
+    get_playlist_songs,
+    get_recent_genres,
+    get_spotify_id,
+)
+from helpers.tekore_setup import spotify
 
 # create_db_and_tables()
 
@@ -70,6 +77,7 @@ async def main():
         #         print(song_id)
 
     await sender.close()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
