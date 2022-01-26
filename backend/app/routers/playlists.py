@@ -2,6 +2,7 @@ from typing import List
 
 import tekore as tk
 from cache import cache
+from connections import redis_cache
 from db.models import PlaylistOverview
 from fastapi import APIRouter, BackgroundTasks, Request
 from fastapi.responses import RedirectResponse
@@ -25,16 +26,23 @@ async def get_playlists(request: Request, bg_tasks: BackgroundTasks):
     Return a user's playlists
 
     """
-    user = request.session.get("user", None)
-    token = cache.users.get(user, None)
+    id = request.session.get("user", None)
+    if id is None:
+        print("No ID found")
+        request.session.pop("user", None)
+        return RedirectResponse(url="/login")
 
-    if user is None or token is None:
+    token_info = await redis_cache.hgetall(id)
+    token = dict_to_token(token_info)
+
+    if token is None:
         request.session.pop("user", None)
         return RedirectResponse(url="/login")
 
     if token.is_expiring:
-        token = await cred.refresh(token)
-        cache.users[user] = token
+        token = cred.refresh(token)
+        token_info = token_to_dict(token)
+        redis_cache.hmset(id, token_info)
 
     try:
         with spotify.token_as(token):

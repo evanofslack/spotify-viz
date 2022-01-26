@@ -43,7 +43,6 @@ async def login(request: Request):
         return RedirectResponse(url="/overview")
 
     state = gen_state()
-    # request.session[state] = True
     await redis_cache.set(state, "true")
     url = cred.user_authorisation_url(scope, state)
 
@@ -70,10 +69,10 @@ async def login_callback(request: Request, code: str, state: str) -> RedirectRes
     id = str(uuid.uuid4())
     await redis_cache.hmset(id, token_info)
     request.session["user"] = id
+    print(request.session["user"])
 
     with spotify.token_as(token):
         spotify_id = await get_spotify_id(spotify)
-        print(spotify_id)
 
     return RedirectResponse("http://localhost:3000/")
 

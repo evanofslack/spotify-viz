@@ -27,6 +27,7 @@ async def get_overview(request: Request):
     """
     id = request.session.get("user", None)
     if id is None:
+        print("No ID found")
         request.session.pop("user", None)
         return RedirectResponse(url="/login")
 
@@ -45,7 +46,6 @@ async def get_overview(request: Request):
     try:
         with spotify.token_as(token):
             display_name = await get_display_name(spotify)
-            print(display_name)
             current = await get_currently_playing(spotify)
             last = await get_last_played(spotify)
 
