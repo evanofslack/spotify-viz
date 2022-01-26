@@ -1,10 +1,13 @@
-import tekore as tk
+import uuid
+
 from cache import cache
+from connections import redis_cache
 from db.models import Login, RedirectURL
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
-from helpers.spotify import get_spotify_id
+from helpers.spotify import get_spotify_id, token_to_dict
 from helpers.tekore_setup import cred, scope, spotify
+from tekore._auth.util import gen_state
 
 router = APIRouter(
     tags=["auth"],
@@ -17,14 +20,17 @@ async def is_logged_in(request: Request):
     Index cache to determine is user is logged in
 
     """
-    user = request.session.get("user", None)
-    token = cache.users.get(user, None)
+    id = request.session.get("user", None)
+    if id is None:
+        request.session.pop("user", None)
+        return {"is_logged_in": False, "message": "Not logged in"}
 
-    if user is None or token is None:
+    token_info = await redis_cache.hgetall(id)
+    if token_info is None:
         request.session.pop("user", None)
         return {"is_logged_in": False, "message": "Not logged in"}
     else:
-        return {"is_logged_in": True, "message": "Sucessfully logged in"}
+        return {"is_logged_in": True, "message": "Successfully logged in"}
 
 
 @router.get("/login", response_model=RedirectURL)
@@ -36,11 +42,17 @@ async def login(request: Request):
     if "user" in request.session:
         return RedirectResponse(url="/overview")
 
-    auth = tk.UserAuth(cred, scope)
-    # TODO add redis or other key/value store to work with multiple gunicorn workers on heroku
-    cache.auths[auth.state] = auth
+    state = gen_state()
+    # request.session[state] = True
+    await redis_cache.set(state, "true")
+    url = cred.user_authorisation_url(scope, state)
 
-    return {"url": auth.url}
+    # auth = tk.UserAuth(cred, scope)
+    # request.session[auth.state] = auth
+    # state = auth.state
+    # cache.auths[auth.state] = auth
+
+    return {"url": url}
 
 
 @router.get("/callback")
@@ -49,18 +61,19 @@ async def login_callback(request: Request, code: str, state: str) -> RedirectRes
     Create user and return redirect url to home page
 
     """
-
-    auth = cache.auths.pop(state, None)
-    if auth is None:
+    if not await redis_cache.exists(state):
         return "Invalid state!", 400
 
-    token = auth.request_token(code, state)
+    token = cred.request_user_token(code)
+    token_info = token_to_dict(token)
 
-    request.session["user"] = state
-    cache.users[state] = token
+    id = str(uuid.uuid4())
+    await redis_cache.hmset(id, token_info)
+    request.session["user"] = id
 
     with spotify.token_as(token):
         spotify_id = await get_spotify_id(spotify)
+        print(spotify_id)
 
     return RedirectResponse("http://localhost:3000/")
 

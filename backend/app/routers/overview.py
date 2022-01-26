@@ -1,10 +1,18 @@
 import tekore as tk
 from cache import cache
+from connections import redis_cache
 from db.models import UserOverview
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
-from helpers.spotify import get_currently_playing, get_display_name, get_last_played
+from helpers.spotify import (
+    dict_to_token,
+    get_currently_playing,
+    get_display_name,
+    get_last_played,
+    token_to_dict,
+)
 from helpers.tekore_setup import cred, spotify
+from tekore._auth.expiring.token import Token
 
 router = APIRouter(
     tags=["overview"],
@@ -17,20 +25,27 @@ async def get_overview(request: Request):
     Return overview of user's listening history
 
     """
-    user = request.session.get("user", None)
-    token = cache.users.get(user, None)
+    id = request.session.get("user", None)
+    if id is None:
+        request.session.pop("user", None)
+        return RedirectResponse(url="/login")
 
-    if user is None or token is None:
+    token_info = await redis_cache.hgetall(id)
+    token = dict_to_token(token_info)
+
+    if token is None:
         request.session.pop("user", None)
         return RedirectResponse(url="/login")
 
     if token.is_expiring:
         token = cred.refresh(token)
-        cache.users[user] = token
+        token_info = token_to_dict(token)
+        redis_cache.hmset(id, token_info)
 
     try:
         with spotify.token_as(token):
             display_name = await get_display_name(spotify)
+            print(display_name)
             current = await get_currently_playing(spotify)
             last = await get_last_played(spotify)
 
