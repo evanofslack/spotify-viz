@@ -43,7 +43,7 @@ class RedisCache:
         return await self.redis.hgetall(hash_name)
 
     async def close(self):
-        self.redis.close()
+        await self.redis.close()
         await self.redis.wait_closed()
 
 
