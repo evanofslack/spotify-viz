@@ -1,9 +1,7 @@
-import uuid
-
-from cache import cache
+from config import Settings, get_settings
 from connections import redis_cache
 from db.models import Login, RedirectURL
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import RedirectResponse
 from helpers.spotify import get_spotify_id, token_to_dict
 from helpers.tekore_setup import cred, scope, spotify
@@ -50,7 +48,9 @@ async def login(request: Request):
 
 
 @router.get("/callback")
-async def login_callback(request: Request, code: str, state: str) -> RedirectResponse:
+async def login_callback(
+    request: Request, code: str, state: str, settings: Settings = Depends(get_settings)
+) -> RedirectResponse:
     """
     Create user and return redirect url to home page
 
@@ -66,7 +66,7 @@ async def login_callback(request: Request, code: str, state: str) -> RedirectRes
     token_info = token_to_dict(token)
     await redis_cache.hmset(spotify_id, token_info)
 
-    return RedirectResponse("http://localhost:3000/")
+    return RedirectResponse(settings.home_url)
 
 
 @router.get("/logout")

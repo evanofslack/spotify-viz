@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     environment: str = os.getenv("ENVIRONMENT")
     testing: bool = os.getenv("TESTING")
     redis_url: str = os.getenv("REDIS_URL")
+    home_url: str = os.getenv("HOME_URL")
 
 
 @lru_cache()
