@@ -20,11 +20,13 @@ async def is_logged_in(request: Request):
     """
     id = request.session.get("user", None)
     if id is None:
+        print("no matching id")
         request.session.pop("user", None)
         return {"is_logged_in": False, "message": "Not logged in"}
 
     token_info = await redis_cache.hgetall(id)
     if token_info is None:
+        print("No token info")
         request.session.pop("user", None)
         return {"is_logged_in": False, "message": "Not logged in"}
     else:
