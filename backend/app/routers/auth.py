@@ -17,7 +17,7 @@ router = APIRouter(
 @router.get("/is_logged_in", response_model=Login)
 async def is_logged_in(request: Request):
     """
-    Index cache to determine is user is logged in
+    Index session and cache to determine is user is logged in
 
     """
     id = request.session.get("user", None)
@@ -46,11 +46,6 @@ async def login(request: Request):
     await redis_cache.set(state, "true")
     url = cred.user_authorisation_url(scope, state)
 
-    # auth = tk.UserAuth(cred, scope)
-    # request.session[auth.state] = auth
-    # state = auth.state
-    # cache.auths[auth.state] = auth
-
     return {"url": url}
 
 
@@ -64,15 +59,12 @@ async def login_callback(request: Request, code: str, state: str) -> RedirectRes
         return "Invalid state!", 400
 
     token = cred.request_user_token(code)
-    token_info = token_to_dict(token)
-
-    id = str(uuid.uuid4())
-    await redis_cache.hmset(id, token_info)
-    request.session["user"] = id
-    print(request.session["user"])
-
     with spotify.token_as(token):
         spotify_id = await get_spotify_id(spotify)
+
+    request.session["user"] = spotify_id
+    token_info = token_to_dict(token)
+    await redis_cache.hmset(spotify_id, token_info)
 
     return RedirectResponse("http://localhost:3000/")
 
@@ -83,7 +75,8 @@ def logout(request: Request) -> RedirectResponse:
     Remove user from cache
 
     """
-    uid = request.session.pop("user", None)
-    if uid is not None:
-        cache.users.pop(uid, None)
+    id = request.session.pop("user", None)
+    if id is not None:
+        # TODO remove key from redis
+        pass
     return RedirectResponse("/login")

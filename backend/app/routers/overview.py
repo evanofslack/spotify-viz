@@ -27,21 +27,21 @@ async def get_overview(request: Request):
     """
     id = request.session.get("user", None)
     if id is None:
-        print("No ID found")
         request.session.pop("user", None)
         return RedirectResponse(url="/login")
 
     token_info = await redis_cache.hgetall(id)
-    token = dict_to_token(token_info)
-
-    if token is None:
+    if not token_info:
         request.session.pop("user", None)
         return RedirectResponse(url="/login")
 
-    if token.is_expiring:
+    token = dict_to_token(token_info)
+
+    if token.is_expiring or True:
+        # TODO wrap tk.token to properly set expires at
         token = cred.refresh(token)
         token_info = token_to_dict(token)
-        redis_cache.hmset(id, token_info)
+        await redis_cache.hmset(id, token_info)
 
     try:
         with spotify.token_as(token):

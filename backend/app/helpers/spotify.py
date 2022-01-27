@@ -12,7 +12,7 @@ def token_to_dict(t: Token) -> dict:
         "token_type": t.token_type,
         "scope": str(t.scope),
         "refresh_token": t.refresh_token,
-        "expires_in": (t.expires_in),
+        "expires_in": t.expires_in,
     }
     return token_info
 

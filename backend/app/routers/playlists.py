@@ -7,11 +7,12 @@ from db.models import PlaylistOverview
 from fastapi import APIRouter, BackgroundTasks, Request
 from fastapi.responses import RedirectResponse
 from helpers.spotify import (
+    dict_to_token,
     get_playlist_cover_image,
     get_playlist_ids,
     get_playlist_name,
-    get_playlist_songs,
     get_spotify_id,
+    token_to_dict,
 )
 from helpers.tekore_setup import cred, spotify
 
@@ -21,14 +22,13 @@ router = APIRouter(
 
 
 @router.get("/playlists", response_model=List[PlaylistOverview])
-async def get_playlists(request: Request, bg_tasks: BackgroundTasks):
+async def get_playlists(request: Request):
     """
     Return a user's playlists
 
     """
     id = request.session.get("user", None)
     if id is None:
-        print("No ID found")
         request.session.pop("user", None)
         return RedirectResponse(url="/login")
 
