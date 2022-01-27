@@ -3,6 +3,25 @@ from typing import Dict, List, Tuple
 
 import iso8601
 import tekore as tk
+from tekore._auth.expiring.token import Token
+
+
+def token_to_dict(t: Token) -> dict:
+    token_info = {
+        "access_token": t.access_token,
+        "token_type": t.token_type,
+        "scope": str(t.scope),
+        "refresh_token": t.refresh_token,
+        "expires_in": t.expires_in,
+    }
+    return token_info
+
+
+def dict_to_token(token_info: dict) -> Token:
+    expires = token_info["expires_in"]
+    token_info["expires_in"] = int(expires)
+    token = Token(token_info, uses_pkce=False)
+    return token
 
 
 async def get_spotify_id(spotify: tk.Spotify) -> str:

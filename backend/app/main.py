@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
 from connections import redis_cache
+from helpers.tekore_setup import sender as tk_sender
 from routers import auth, overview, playlists, status
 
 load_dotenv()
@@ -34,7 +35,8 @@ async def startup():
 
 @app.on_event("shutdown")
 async def shutdown():
-    redis_cache.close()
+    await tk_sender.close()
+    await redis_cache.close()
     await redis_cache.wait_closed()
 
 
